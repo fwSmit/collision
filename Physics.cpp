@@ -63,7 +63,7 @@ void Physics::draw(float deltaTime){
 		sf::CircleShape circle;
 		circle.setPosition(op::toSf(objects[i].getPos()));
 		circle.setRadius(op::toSf(objects[i].getRadius()));
-		circle.set
+		circle.setOrigin(circle.getRadius(), circle.getRadius());
 		window.draw(circle);
 	}
 	lines_array.clear();
