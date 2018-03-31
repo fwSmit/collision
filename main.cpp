@@ -7,6 +7,8 @@ int main(){
 	//window.setFramerateLimit(2);
 	Physics physics(window);
 	physics.addObject(arma::fvec2{600, 30}, arma::fvec2{-400, 1000});
+	physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 100});
+	physics.addLine(arma::fvec2{60, 30}, arma::fvec2{600, 100});
 	sf::Clock timer;
 	float deltaTime;
 	while(window.isOpen()){

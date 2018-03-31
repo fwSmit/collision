@@ -1,21 +1,22 @@
 #include "Physics.h"
+#include "constants.h"
 
 using namespace arma;
 
 Physics::Physics(sf::RenderWindow& _window) : window(_window){
-	bounds[0] = window.getSize().x;
-	bounds[1] = window.getSize().y;
+	bounds = op::toArma(window.getSize());
+	lines_array.setPrimitiveType(sf::PrimitiveType::Lines);
 }
 
 void Physics::addObject(fvec2 pos, fvec2 vel){
-	sf::CircleShape circle;
 	Circle object;
-	circle.setRadius(object.getRadius());
-	circle.setOrigin(circle.getRadius(), circle.getRadius());
 	object.setPos(pos);
 	object.setVel(vel);
 	objects.push_back(object);
-	circles.push_back(circle);
+}
+
+void Physics::addLine(fvec2 begin, fvec2 end){
+	lines.push_back(Line(begin, end));
 }
 
 void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame could cause the object to go out of bounds
@@ -59,7 +60,16 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 void Physics::draw(float deltaTime){
 	update(deltaTime);
 	for(int i = 0; i < objects.size(); i++){
-		circles[i].setPosition(objects[i].getSfPos());
-		window.draw(circles[i]);
+		sf::CircleShape circle;
+		circle.setPosition(op::toSf(objects[i].getPos()));
+		circle.setRadius(op::toSf(objects[i].getRadius()));
+		circle.set
+		window.draw(circle);
 	}
+	lines_array.clear();
+	for(int i = 0; i < lines.size(); i++){
+		lines_array.append(op::toSf(lines[i].getStart()));
+		lines_array.append(op::toSf(lines[i].getEnd()));
+	}
+	window.draw(lines_array);
 }

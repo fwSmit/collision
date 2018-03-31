@@ -6,7 +6,7 @@ project (collision_p)
 set (CMAKE_CXX_STANDARD 11)
 
 
-add_executable(collision main.cpp Circle.cpp Physics.cpp)
+add_executable(collision main.cpp Circle.cpp Physics.cpp constants.cpp)
 
 #armadillo library
 find_package(Armadillo REQUIRED)

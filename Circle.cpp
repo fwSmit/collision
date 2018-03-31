@@ -1,5 +1,6 @@
 #include "Circle.h"
 #include <iostream>
+#include <SFML/Graphics.hpp>
 
 using namespace arma;
 using namespace std;
@@ -13,10 +14,6 @@ Circle::Circle(){
 
 arma::fvec2 Circle::getPos(){
 	return pos;
-}
-
-sf::Vector2f Circle::getSfPos(){
-	return sf::Vector2f(pos[0], pos[1]);
 }
 
 fvec2 Circle::getVel(){
@@ -39,3 +36,4 @@ float Circle::getRadius(){
 void Circle::travel(float time){
 	pos += vel * time;
 }
+
