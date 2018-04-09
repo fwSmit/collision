@@ -21,8 +21,19 @@ namespace op{
 		return arma::fvec2{toArma(vec.x), toArma(vec.y)};
 	}
 
+	arma::fvec2 toArma(sf::Vector2i vec){
+		return arma::fvec2{toArma(vec.x), toArma(vec.y)};
+	}
+
 	float toArma(float val){
 		return val/scale;
 	}
 	
+	void drawPoint(arma::fvec2 p, sf::RenderWindow& window){
+		sf::CircleShape circle;
+		circle.setPosition(op::toSf(p));
+		circle.setRadius(3);
+		circle.setOrigin(circle.getRadius(), circle.getRadius());
+		window.draw(circle);
+	}
 }

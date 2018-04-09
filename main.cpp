@@ -6,9 +6,9 @@ int main(){
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
-	physics.addObject(arma::fvec2{600, 30}, arma::fvec2{-400, 1000});
-	physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 100});
-	physics.addLine(arma::fvec2{60, 30}, arma::fvec2{600, 100});
+	//physics.addObject(arma::fvec2{60, 30}, arma::fvec2{-40, 10});
+	physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 1000});
+	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{600, 100});
 	sf::Clock timer;
 	float deltaTime;
 	while(window.isOpen()){

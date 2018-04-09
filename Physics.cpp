@@ -54,7 +54,17 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 			object.travel(deltaTime);
 		}
 	}
-	}
+	Line line = lines[0];
+	arma::fvec2 p = op::toArma(sf::Mouse::getPosition(window));
+	float h = line.getB()*p[1]-(line.getB()*line.getB())/line.getA() * p[0];
+	float j = (line.getC()-h)/(pow(line.getB(), 2)/line.getA() + line.getA());
+	float k = (-line.getA()/line.getB())*j + line.getC()/line.getB(); 
+	arma::fvec2 project_p{j,k};
+	op::drawPoint(p, window);
+	op::drawPoint(project_p, window);
+	cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
+	cout << "end" << endl;
+	}	// !end
 }
 
 void Physics::draw(float deltaTime){
