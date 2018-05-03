@@ -33,6 +33,10 @@ float Circle::getRadius(){
 	return radius;
 }
 
+float Circle::getMass(){
+	return mass;
+}
+
 void Circle::travel(float time){
 	pos += vel * time;
 }
