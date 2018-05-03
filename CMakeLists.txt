@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 project (collision_p)
 
 set (CMAKE_CXX_STANDARD 11)
-
 
 add_executable(collision main.cpp Circle.cpp Physics.cpp constants.cpp)
 
