@@ -21,6 +21,7 @@ fvec2 Circle::getVel(){
 }
 
 void Circle::setVel(fvec2 _vel){
+	std::cout << "new vel set to: "  << _vel << std::endl;
 	vel = _vel;
 }
 

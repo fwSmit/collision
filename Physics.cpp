@@ -22,60 +22,39 @@ void Physics::addLine(fvec2 begin, fvec2 end){
 }
 
 void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame could cause the object to go out of bounds
-	static bool oneFrame = false;
-	if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-		//end = false;
-		//oneFrame = true;
-	}
-	if(!end){
-		// dynamic - static circles hit detection
-		if(objects.size() == 2){
-			auto u = objects[0], v = objects[1]; // u is the moving circle, v is the static circle
-			Line k(u.getPos(), u.getPos()+u.getVel());
-			arma::fvec2 p = closestPointOnLine(k, v.getPos());
-			float closestDistSq = arma::accu(arma::pow(p - v.getPos(), 2));
-			float radiusSumSq = std::pow(u.getRadius() + v.getRadius(), 2);
-			//cout << "dist: " << closestDistSq << endl;
-			//cout << "radius: " << u.getRadius() + v.getRadius() << endl;
-			//cout << "square radius: " << radiusSumSq << endl;
-			bool willHit = radiusSumSq > closestDistSq;
-			//cout << "willHit: " << std::boolalpha << willHit << endl;
-			op::drawPoint(u.getPos(), sf::Color::Green, window);
-			if(willHit){
-				arma::fvec2 deltaPos = p - u.getPos();
-				//if(std::signbit(deltaPos[0]) != std::signbit(u.getVel()[0])) cout << "first sign different " << endl;
-				//if(std::signbit(deltaPos[1]) != std::signbit(u.getVel()[1])) cout << "second sign different " << endl;
-				float backDist = std::sqrt(radiusSumSq - closestDistSq);
-				arma::fvec2 pointOfCollision = p - backDist * arma::normalise(u.getVel());
-				float colDistSq = arma::accu(arma::pow(u.getPos() - pointOfCollision, 2));
-				float speedDtSq = arma::accu(arma::pow(u.getVel() * deltaTime, 2));
-				op::drawPoint(pointOfCollision, sf::Color::White, window);
-				op::drawPoint(u.getPos(), sf::Color::Yellow, window);
-				float colDist = sqrt(colDistSq), speed = sqrt(arma::accu(arma::pow(u.getVel(), 2)));
-				float hitTime = sqrt(colDistSq) / speed;
-				//cout << "colDist :" << colDist << " speed: " << speed << endl;
-				cout << "hit time: " << hitTime << endl;
-				if(colDistSq < speedDtSq){
-					// response
-					cout << "HIT!" << endl;
-					end = true;
-					arma::fvec2 
-						oldVel_u = u.getVel(), 
-						oldVel_v = v.getVel(),
-						delta = u.getPos() - v.getPos(),
-						paralel_u = op::getParalel(u.getVel(), -delta),
-						paralel_v = op::getParalel(v.getVel(), delta),
-						perpendicular_u = u.getVel() - paralel_u,
-						perpendicular_v = v.getVel() - paralel_v,
-						newVel_u = (paralel_u * (u.getMass() - v.getMass()) + (2 * v.getMass() * paralel_v)) / (u.getMass() + v.getMass());
-					newVel_u = arma::fvec2{10, -10};
-					u.setVel(newVel_u);
-					cout << u.getVel() << endl;
-					//arma::fvec2 q = (2 * dot(u.getVel(), norm))/(
-				}
+	bool travelNormally = true;
+	static bool once = true;
+	for(auto& object : objects){
+		for(auto line : lines){
+			fvec2 direction = line.getDirection();
+			fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
+			fvec2 vel_perpendicular = object.getVel() - vel_paralel;
+			fvec2 p = object.getPos();
+			fvec2 project_p = closestPointOnLine(line, p);
+			float distance = arma::norm(p-project_p) - object.getRadius();
+			//cout << distance << endl;
+			cout << project_p << endl;
+			float speed_perpendicular = arma::norm(vel_perpendicular);
+			float hitTime = distance / speed_perpendicular;
+			//cout << hitTime << endl;
+			if(hitTime < deltaTime){
+				travelNormally = false;
+				//std::cout << "Hit" << std::endl;
+				object.travel(hitTime);
+				fvec2 newVel = vel_paralel - vel_perpendicular;
+				object.setVel(newVel);
+				object.travel(deltaTime-hitTime);
+			}
+		
+			
+			
+			if(once){
+				object.setVel(vel_perpendicular);
+				//cout << "direction: " << direction << endl;
+				//object.setVel(100* direction);
+				once = false;
 			}
 		}
-	for(auto& object : objects){
 		if(object.getVel()[0] != 0 && object.getVel()[1] != 0){ // bounds detection
 			// assumes the circle is in bounds
 			float horizontalBound 	= object.getVel()[0] > 0 ? 	(bounds[0] - object.getPos()[0] - object.getRadius()) / object.getVel()[0] :
@@ -89,6 +68,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				cout << "object is probably out of bounds " << endl;
 			}
 			if(boundHitTime < deltaTime){
+				travelNormally = false;
 				if(horizontalBound < verticalBound){ // left or right
 					object.travel(boundHitTime);
 					auto vel = object.getVel();
@@ -103,10 +83,8 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 					object.setVel(vel);
 					object.travel(deltaTime-boundHitTime);
 				}
-				//end = true;
 			}
-			else{
-				if(!end || oneFrame)
+			if(travelNormally){
 				object.travel(deltaTime);
 			}
 		}
@@ -117,11 +95,9 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		arma::fvec2 project_p = closestPointOnLine(line, p);
 		op::drawPoint(p, window);
 		op::drawPoint(project_p, window);
-		cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
-		cout << "end" << endl;
+		//cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
+		//cout << "end" << endl;
 	}
-	}	// !end
-	if(oneFrame) end = true;
 }
 
 void Physics::draw(float deltaTime){
@@ -143,11 +119,21 @@ void Physics::draw(float deltaTime){
 }
 
 arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
-	float a = line.getA();
-	float b = line.getB();
-	float c = line.getC();
-	float h = b*p[1]-(b*b)/a * p[0];
-	float j = (c-h)/(pow(b, 2)/a + a);
-	float k = (-a/b)*j + c/b; 
-	return arma::fvec2{j,k};
+	// line start = A and line end = B
+	fvec2 AP = p - line.getStart();
+	fvec2 AB = line.getEnd() - line.getStart();
+
+	float magnitudeAB = arma::accu(arma::pow(AB, 2));
+	float dotProduct = arma::dot(AP, AB);
+	float distance = dotProduct / magnitudeAB; // not an actual distance
+
+	return line.getStart() + AB * distance;
+
+    //float a = line.getA();
+	//float b = line.getB();
+	//float c = line.getC();
+	//float h = b*p[1]-(b*b)/a * p[0];
+	//float j = (c-h)/(pow(b, 2)/a + a);
+	//float k = (-a/b)*j + c/b; 
+	//return arma::fvec2{j,k};
 }

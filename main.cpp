@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 2;
+	int caseN = 4;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -17,9 +17,17 @@ int main(){
 			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
 		case 2:// direct hit
-			physics.addObject(arma::fvec2{200, 400}, arma::fvec2{-5, -100});
+			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});
 			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
+		case 3:// test bounds
+			physics.addObject(arma::fvec2{100, 300}, arma::fvec2{-50, 100});
+		case 4: // test lines
+			//physics.addLine(arma::fvec2{100, 300}, arma::fvec2{300, 200});
+			//physics.addLine(arma::fvec2{0, 400}, arma::fvec2{900, 100});
+			physics.addLine(arma::fvec2{200, 300}, arma::fvec2{900, 300});
+			physics.addObject(arma::fvec2{250, 50}, arma::fvec2{-50, 150});
+
 	}
 	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 1000});
 	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{600, 100});
@@ -28,15 +36,15 @@ int main(){
 	while(window.isOpen()){
 		deltaTime = timer.restart().asSeconds();
 		sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
 
-        window.clear();
+		window.clear();
 		physics.draw(deltaTime);
-        window.display();
+		window.display();
 		//std::cout << 1/deltaTime << std::endl;	
 	}
 }
