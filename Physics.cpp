@@ -5,9 +5,23 @@
 
 using namespace arma;
 
+struct collision{
+	Circle circle;
+	Line line;
+	float hitTime;
+	collision(Circle _circle, Line _line, float _hitTime) : circle(_circle), line(_line), hitTime(_hitTime){}
+};
+
 Physics::Physics(sf::RenderWindow& _window) : window(_window){
 	bounds = op::toArma(window.getSize());
 	lines_array.setPrimitiveType(sf::PrimitiveType::Lines);
+
+	// add the bounds
+	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
+	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
+	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
+	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
+	//addLine(fvec2{10, 100}, fvec2{20, 10});
 }
 
 void Physics::addObject(fvec2 pos, fvec2 vel){
@@ -24,80 +38,140 @@ void Physics::addLine(fvec2 begin, fvec2 end){
 void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame could cause the object to go out of bounds
 	bool travelNormally = true;
 	static bool once = true;
-	for(auto& object : objects){
-		for(auto line : lines){
-			fvec2 direction = line.getDirection();
-			fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
-			fvec2 vel_perpendicular = object.getVel() - vel_paralel;
-			fvec2 p = object.getPos();
-			fvec2 project_p = closestPointOnLine(line, p);
-			float distance = arma::norm(p-project_p) - object.getRadius();
-			//cout << distance << endl;
-			cout << project_p << endl;
-			float speed_perpendicular = arma::norm(vel_perpendicular);
-			float hitTime = distance / speed_perpendicular;
-			//cout << hitTime << endl;
-			if(hitTime < deltaTime){
-				travelNormally = false;
-				//std::cout << "Hit" << std::endl;
-				object.travel(hitTime);
-				fvec2 newVel = vel_paralel - vel_perpendicular;
-				object.setVel(newVel);
-				object.travel(deltaTime-hitTime);
-			}
-		
-			
-			
-			if(once){
-				object.setVel(vel_perpendicular);
-				//cout << "direction: " << direction << endl;
-				//object.setVel(100* direction);
-				once = false;
+	if(objects.size() > 1){
+		for(int i = 0; i < objects.size() - 1; i++){
+			for(int j = i+1; j < objects.size(); j++){
+				Circle& u = objects[i];
+			   	Circle&	v = objects[j]; // v is static in reference frame
+				fvec2 u_vel = u.getVel() - v.getVel();
+				Line u_movement(u.getPos(), u.getPos() + u_vel);
+				fvec2 project_v = closestPointOnLine(u_movement, v.getPos());
+				// a_sq + b_sq = r_sq
+				float a_sq = arma::accu(arma::pow(v.getPos() - project_v, 2)); 
+				float b_sq = pow(v.getRadius() + u.getRadius(), 2) - a_sq;
+				float b = sqrt(b_sq);
+				fvec2 u_vel_unit = arma::normalise(u_vel);
+				fvec2 intersectionPoint = project_v - b*u_vel_unit;
+				float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
+				float a_dist = arma::norm(u.getPos() - project_v);
+				op::drawPoint(intersectionPoint, window);
+				op::drawPoint(u.getPos(), window);
+				op::drawPoint(project_v, window);
+				bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
+				if(isHitting){
+					float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
+					//cout << hitTime << endl;
+					if(hitTime  < deltaTime){
+						// not in reference frame anymore
+						
+						u.travel(hitTime);
+						v.travel(hitTime);
+						fvec2 perpendicular = u.getPos() - v.getPos();
+						fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
+						fvec2 u_paralel = u.getVel() - u_perp;
+						fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
+						fvec2 v_paralel = v.getVel() - v_perp;
+						fvec2 u_new_vel = u_paralel + v_perp;
+						fvec2 v_new_vel = v_paralel + u_perp;
+						
+						u.setVel(u_new_vel);
+						v.setVel(v_new_vel);
+						//u.setVel(v_perp);
+						//v.setVel(u_perp);
+						//u.setVel(u_perp);
+						//v.setVel(u_perp);
+						//objects[j].setVel(fvec2{100, 100});
+						//v.setVel(fvec2{100, 100});
+						std::cout << "i: " << i << "j: " << j << std::endl;
+						u.travel(deltaTime - hitTime);
+						v.travel(deltaTime - hitTime);
+
+						travelNormally = false;
+						//end = true;
+						cout << arma::norm(u.getPos() - v.getPos()) << endl;
+						//vel_paralel = op::getParalel(U_vel, )
+						cout << "HIT" << endl;
+					}
+				}
+				//std::cout << hitTime << endl;
+				//std::cout << intersectionDist << " < " << a_dist << "? "  << std::boolalpha << (intersectionDist < a_dist)<< endl;
 			}
 		}
+	}
+	for(auto& object : objects){
 		if(object.getVel()[0] != 0 && object.getVel()[1] != 0){ // bounds detection
-			// assumes the circle is in bounds
-			float horizontalBound 	= object.getVel()[0] > 0 ? 	(bounds[0] - object.getPos()[0] - object.getRadius()) / object.getVel()[0] :
-				(object.getPos()[0] - object.getRadius()) / - object.getVel()[0];
-			float verticalBound 	= object.getVel()[1] > 0 ? 	(bounds[1] - object.getPos()[1] - object.getRadius()) / object.getVel()[1] :
-				(object.getPos()[1] - object.getRadius()) / - object.getVel()[1];
-			float boundHitTime = std::min(horizontalBound, verticalBound);
-			//std::cout << boundHitTime << endl;
+			for(auto line : lines){
+				fvec2 direction = line.getDirection();
+				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
+				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
+				fvec2 p = object.getPos();
+				fvec2 project_p = closestPointOnLine(line, p);
+				float distance = arma::norm(p-project_p) - object.getRadius();
+				//cout << distance << endl;
+				//cout << project_p << endl;
+				float speed_perpendicular = arma::norm(vel_perpendicular);
+				float hitTime = distance / speed_perpendicular;
+				//cout << hitTime << endl;
+				if(hitTime < deltaTime){
+					travelNormally = false;
+					//std::cout << "Hit" << std::endl;
+					object.travel(hitTime);
+					fvec2 newVel = vel_paralel - vel_perpendicular;
+					object.setVel(newVel);
+					object.travel(deltaTime-hitTime);
+				}
 
-			if(boundHitTime < 0){
-				cout << "object is probably out of bounds " << endl;
-			}
-			if(boundHitTime < deltaTime){
-				travelNormally = false;
-				if(horizontalBound < verticalBound){ // left or right
-					object.travel(boundHitTime);
-					auto vel = object.getVel();
-					vel[0] = -vel[0]; // inverse x-component of velocit
-					object.setVel(vel);
-					object.travel(deltaTime-boundHitTime);
-				}
-				else{ // top or bottom
-					object.travel(boundHitTime);
-					arma::fvec2 vel = object.getVel();
-					vel[1] = -vel[1]; // inverse y-component of velocity
-					object.setVel(vel);
-					object.travel(deltaTime-boundHitTime);
+
+
+				if(once){
+					//object.setVel(vel_perpendicular);
+					//cout << "direction: " << direction << endl;
+					//object.setVel(100* direction);
+					once = false;
 				}
 			}
-			if(travelNormally){
+			//// assumes the circle is in bounds
+			//float horizontalBound 	= object.getVel()[0] > 0 ? 	(bounds[0] - object.getPos()[0] - object.getRadius()) / object.getVel()[0] :
+			//(object.getPos()[0] - object.getRadius()) / - object.getVel()[0];
+			//float verticalBound 	= object.getVel()[1] > 0 ? 	(bounds[1] - object.getPos()[1] - object.getRadius()) / object.getVel()[1] :
+			//(object.getPos()[1] - object.getRadius()) / - object.getVel()[1];
+			//float boundHitTime = std::min(horizontalBound, verticalBound);
+			////std::cout << boundHitTime << endl;
+
+			//if(boundHitTime < 0){
+			//cout << "object is probably out of bounds " << endl;
+			//}
+			//if(boundHitTime < deltaTime){
+			//travelNormally = false;
+			//if(horizontalBound < verticalBound){ // left or right
+			//object.travel(boundHitTime);
+			//auto vel = object.getVel();
+			//vel[0] = -vel[0]; // inverse x-component of velocit
+			//object.setVel(vel);
+			//object.travel(deltaTime-boundHitTime);
+			//}
+			//else{ // top or bottom
+			//object.travel(boundHitTime);
+			//arma::fvec2 vel = object.getVel();
+			//vel[1] = -vel[1]; // inverse y-component of velocity
+			//object.setVel(vel);
+			//object.travel(deltaTime-boundHitTime);
+			//}
+			//}
+			if(travelNormally && !end){
 				object.travel(deltaTime);
 			}
 		}
 	}
-	if(lines.size() > 0){
-		Line line = lines[0];
-		arma::fvec2 p = op::toArma(sf::Mouse::getPosition(window));
-		arma::fvec2 project_p = closestPointOnLine(line, p);
-		op::drawPoint(p, window);
-		op::drawPoint(project_p, window);
-		//cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
-		//cout << "end" << endl;
-	}
+	//if(lines.size() > 0){
+		//Line line = lines[0];
+		//arma::fvec2 p = op::toArma(sf::Mouse::getPosition(window));
+		//arma::fvec2 project_p = closestPointOnLine(line, p);
+		//op::drawPoint(p, window);
+		//op::drawPoint(project_p, window);
+		////cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
+		////cout << "end" << endl;
+	//}
 }
 
 void Physics::draw(float deltaTime){
@@ -111,7 +185,7 @@ void Physics::draw(float deltaTime){
 		window.draw(circle);
 	}
 	lines_array.clear();
-	for(int i = 0; i < lines.size(); i++){
+	for(int i = 4; i < lines.size(); i++){
 		lines_array.append(op::toSf(lines[i].getStart()));
 		lines_array.append(op::toSf(lines[i].getEnd()));
 	}

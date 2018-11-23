@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 4;
+	int caseN = 2;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -25,8 +25,14 @@ int main(){
 		case 4: // test lines
 			//physics.addLine(arma::fvec2{100, 300}, arma::fvec2{300, 200});
 			//physics.addLine(arma::fvec2{0, 400}, arma::fvec2{900, 100});
-			physics.addLine(arma::fvec2{200, 300}, arma::fvec2{900, 300});
+			//physics.addLine(arma::fvec2{200, 300}, arma::fvec2{900, 300});
 			physics.addObject(arma::fvec2{250, 50}, arma::fvec2{-50, 150});
+			physics.addObject(arma::fvec2{30, 200}, arma::fvec2{50, 300});
+			physics.addObject(arma::fvec2{30, 200}, arma::fvec2{400, -500});
+			//physics.addObject(arma::fvec2{400, 600}, 40*arma::fvec2{-400, -500});
+		case 5: // two moving objects
+			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});
+			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{50, 20});
 
 	}
 	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 1000});
