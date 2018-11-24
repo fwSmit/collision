@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 2;
+	int caseN = 7;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -33,6 +33,25 @@ int main(){
 		case 5: // two moving objects
 			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});
 			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{50, 20});
+		case 6: // ultimate stress test (with big circles)
+			physics.addObject(arma::fvec2{250, 50}, arma::fvec2{-50, 150});
+			physics.addObject(arma::fvec2{30, 200}, arma::fvec2{50, 300});
+			physics.addObject(arma::fvec2{30, 200}, arma::fvec2{400, -500});
+			physics.addObject(arma::fvec2{300, 200}, arma::fvec2{10, -500});
+			physics.addObject(arma::fvec2{20, 320}, arma::fvec2{10, -10});
+			physics.addObject(arma::fvec2{50, 320}, arma::fvec2{0, 0});
+			physics.addObject(arma::fvec2{50, 320}, arma::fvec2{100, 0});
+			physics.addObject(arma::fvec2{50, 320}, arma::fvec2{-100, 0});
+			physics.addObject(arma::fvec2{50, 320}, arma::fvec2{-200, 0});
+			physics.addObject(arma::fvec2{50, 320}, arma::fvec2{-500, 0});
+		case 7: // four simultaneous collisions
+			arma::fvec2 middle_pos{200, 200};
+			physics.addObject(arma::fvec2{middle_pos[0]-100, middle_pos[1]}, arma::fvec2{100, 0});
+			physics.addObject(arma::fvec2{middle_pos[0]+100, middle_pos[1]}, arma::fvec2{-100, 0});
+			physics.addObject(arma::fvec2{middle_pos[0], middle_pos[1]-100}, arma::fvec2{0, 100});
+			physics.addObject(arma::fvec2{middle_pos[0], middle_pos[1]+100}, arma::fvec2{0, -100});
+			physics.addObject(middle_pos, arma::fvec2{0, 0});
+
 
 	}
 	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 1000});

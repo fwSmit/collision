@@ -54,9 +54,9 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				fvec2 intersectionPoint = project_v - b*u_vel_unit;
 				float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
 				float a_dist = arma::norm(u.getPos() - project_v);
-				op::drawPoint(intersectionPoint, window);
-				op::drawPoint(u.getPos(), window);
-				op::drawPoint(project_v, window);
+				//op::drawPoint(intersectionPoint, window);
+				//op::drawPoint(u.getPos(), window);
+				//op::drawPoint(project_v, window);
 				bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
 				if(isHitting){
 					float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
@@ -82,15 +82,15 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 						//v.setVel(u_perp);
 						//objects[j].setVel(fvec2{100, 100});
 						//v.setVel(fvec2{100, 100});
-						std::cout << "i: " << i << "j: " << j << std::endl;
+						//std::cout << "i: " << i << "j: " << j << std::endl;
 						u.travel(deltaTime - hitTime);
 						v.travel(deltaTime - hitTime);
 
 						travelNormally = false;
 						//end = true;
-						cout << arma::norm(u.getPos() - v.getPos()) << endl;
+						//cout << arma::norm(u.getPos() - v.getPos()) << endl;
 						//vel_paralel = op::getParalel(U_vel, )
-						cout << "HIT" << endl;
+						//cout << "HIT" << endl;
 					}
 				}
 				//std::cout << hitTime << endl;
@@ -99,7 +99,6 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		}
 	}
 	for(auto& object : objects){
-		if(object.getVel()[0] != 0 && object.getVel()[1] != 0){ // bounds detection
 			for(auto line : lines){
 				fvec2 direction = line.getDirection();
 				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
@@ -129,38 +128,9 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 					//object.setVel(100* direction);
 					once = false;
 				}
-			}
-			//// assumes the circle is in bounds
-			//float horizontalBound 	= object.getVel()[0] > 0 ? 	(bounds[0] - object.getPos()[0] - object.getRadius()) / object.getVel()[0] :
-			//(object.getPos()[0] - object.getRadius()) / - object.getVel()[0];
-			//float verticalBound 	= object.getVel()[1] > 0 ? 	(bounds[1] - object.getPos()[1] - object.getRadius()) / object.getVel()[1] :
-			//(object.getPos()[1] - object.getRadius()) / - object.getVel()[1];
-			//float boundHitTime = std::min(horizontalBound, verticalBound);
-			////std::cout << boundHitTime << endl;
-
-			//if(boundHitTime < 0){
-			//cout << "object is probably out of bounds " << endl;
-			//}
-			//if(boundHitTime < deltaTime){
-			//travelNormally = false;
-			//if(horizontalBound < verticalBound){ // left or right
-			//object.travel(boundHitTime);
-			//auto vel = object.getVel();
-			//vel[0] = -vel[0]; // inverse x-component of velocit
-			//object.setVel(vel);
-			//object.travel(deltaTime-boundHitTime);
-			//}
-			//else{ // top or bottom
-			//object.travel(boundHitTime);
-			//arma::fvec2 vel = object.getVel();
-			//vel[1] = -vel[1]; // inverse y-component of velocity
-			//object.setVel(vel);
-			//object.travel(deltaTime-boundHitTime);
-			//}
-			//}
-			if(travelNormally && !end){
-				object.travel(deltaTime);
-			}
+		}
+		if(travelNormally && !end){
+			object.travel(deltaTime);
 		}
 	}
 	//if(lines.size() > 0){
@@ -172,6 +142,12 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		////cout << "distance: " << std::sqrt(arma::accu(arma::pow(p - project_p, 2))) << endl;
 		////cout << "end" << endl;
 	//}
+	//
+	float e_k = 0;
+	for(auto object : objects){ // calculate total kinetic energy
+		e_k += 0.5 * pow(arma::norm(object.getVel()), 2);
+	}
+	//cout << "E_k: " << e_k << endl;
 }
 
 void Physics::draw(float deltaTime){
