@@ -14,6 +14,7 @@ class Physics{
 	sf::RenderWindow& window;
 	arma::fvec2 bounds;
 	arma::fvec2 closestPointOnLine(Line line, arma::fvec2 p); // returns the point on the line that is closest to p
+	void travelAll(float time);
 public:
 	Physics(sf::RenderWindow& window);
 	void addObject(arma::fvec2 pos, arma::fvec2 vel);
