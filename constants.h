@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 namespace constants{
-	const float scale = 2.f; // pixels / meter
+	const float scale = 2; // pixels / meter
 }
 namespace op{ // open for all classes
 	sf::Vector2f toSf(arma::fvec2 vec);
