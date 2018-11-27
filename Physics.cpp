@@ -14,6 +14,7 @@ Physics::Physics(sf::RenderWindow& _window) : window(_window){
 	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
 	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
 	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
+	cout << bounds << endl;
 	//addLine(fvec2{10, 100}, fvec2{20, 10});
 }
 
@@ -32,10 +33,11 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 	static bool once = true;
 	bool hasCollided = true;
 	float timeLeft = deltaTime;
-	Circle& circle1 = objects[0];
-	Circle& circle2 = objects[1];
-	Line line1 = lines[3];
+	//Circle& circle1 = objects[0];
+	//Circle& circle2 = objects[1];
+	//Line line1 = lines[3];
 	int circleID = -1;
+	int circle2ID = -1;
 	int lineID = -1;
 	bool circleCircle;
 	int count = 0;
@@ -50,69 +52,72 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 	while(hasCollided && !end){
 		float earliestHitTime = 100000000000;
 		hasCollided = false;
-		//if(objects.size() > 1){
-			//for(int i = 0; i < objects.size() - 1; i++){
-				//for(int j = i+1; j < objects.size(); j++){
-					//Circle& u = objects[i];
-					//Circle&	v = objects[j]; // v is static in reference frame
-					//fvec2 u_vel = u.getVel() - v.getVel();
-					//Line u_movement(u.getPos(), u.getPos() + u_vel);
-					//fvec2 project_v = closestPointOnLine(u_movement, v.getPos());
-					//// a_sq + b_sq = r_sq
-					//float a_sq = arma::accu(arma::pow(v.getPos() - project_v, 2)); 
-					//float b_sq = pow(v.getRadius() + u.getRadius(), 2) - a_sq;
-					//float b = sqrt(b_sq);
-					//fvec2 u_vel_unit = arma::normalise(u_vel);
-					//fvec2 intersectionPoint = project_v - b*u_vel_unit;
-					//float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
-					//float a_dist = arma::norm(u.getPos() - project_v);
-					////op::drawPoint(intersectionPoint, window);
-					////op::drawPoint(u.getPos(), window);
-					////op::drawPoint(project_v, window);
-					//bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
-					//if(isHitting){
-						//float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
-						////cout << hitTime << endl;
-						//if(hitTime  < timeLeft){
-							//// not in reference frame anymore
+		if(objects.size() > 1){
+			for(int i = 0; i < objects.size() - 1; i++){
+				for(int j = i+1; j < objects.size(); j++){
+					Circle& u = objects[i];
+					Circle&	v = objects[j]; // v is static in reference frame
+					fvec2 u_vel = u.getVel() - v.getVel();
+					Line u_movement(u.getPos(), u.getPos() + u_vel);
+					fvec2 project_v = closestPointOnLine(u_movement, v.getPos());
+					// a_sq + b_sq = r_sq
+					float a_sq = arma::accu(arma::pow(v.getPos() - project_v, 2)); 
+					float b_sq = pow(v.getRadius() + u.getRadius(), 2) - a_sq;
+					float b = sqrt(b_sq);
+					fvec2 u_vel_unit = arma::normalise(u_vel);
+					fvec2 intersectionPoint = project_v - b*u_vel_unit;
+					float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
+					float a_dist = arma::norm(u.getPos() - project_v);
+					//op::drawPoint(intersectionPoint, window);
+					//op::drawPoint(u.getPos(), window);
+					//op::drawPoint(project_v, window);
+					bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
+					if(isHitting){
+						float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
+						//cout << hitTime << endl;
+						if(hitTime  < timeLeft){
+							// not in reference frame anymore
 
-							//if(hitTime < earliestHitTime){
-								//circleCircle = true;
+							if(hitTime < earliestHitTime){
+								circleCircle = true;
 								//circle1 = objects[i];
 								//circle2 = objects[j];
-								//earliestHitTime = hitTime;
-							//}
-							////u.travel(hitTime);
-							////v.travel(hitTime);
-							////fvec2 perpendicular = u.getPos() - v.getPos();
-							////fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
-							////fvec2 u_paralel = u.getVel() - u_perp;
-							////fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
-							////fvec2 v_paralel = v.getVel() - v_perp;
-							////fvec2 u_new_vel = u_paralel + v_perp;
-							////fvec2 v_new_vel = v_paralel + u_perp;
+								circleID = i;
+								circle2ID = j;
+								earliestHitTime = hitTime;
+							}
+							//u.travel(hitTime);
+							//v.travel(hitTime);
+							//fvec2 perpendicular = u.getPos() - v.getPos();
+							//fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
+							//fvec2 u_paralel = u.getVel() - u_perp;
+							//fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
+							//fvec2 v_paralel = v.getVel() - v_perp;
+							//fvec2 u_new_vel = u_paralel + v_perp;
+							//fvec2 v_new_vel = v_paralel + u_perp;
 
-							////u.setVel(u_new_vel);
-							////v.setVel(v_new_vel);
-							////u.travel(deltaTime - hitTime);
-							////v.travel(deltaTime - hitTime);
+							//u.setVel(u_new_vel);
+							//v.setVel(v_new_vel);
+							//u.travel(deltaTime - hitTime);
+							//v.travel(deltaTime - hitTime);
 
-							////travelNormally = false;
+							//travelNormally = false;
 
 
-							////end = true;
-							////cout << arma::norm(u.getPos() - v.getPos()) << endl;
-							////vel_paralel = op::getParalel(U_vel, )
-							////cout << "HIT" << endl;
-						//}
-					//}
-					////std::cout << hitTime << endl;
-					////std::cout << intersectionDist << " < " << a_dist << "? "  << std::boolalpha << (intersectionDist < a_dist)<< endl;
-				//}
-			//}
-		//}
-		int i = 0, j = 0;
+							//end = true;
+							//cout << arma::norm(u.getPos() - v.getPos()) << endl;
+							//vel_paralel = op::getParalel(U_vel, )
+							//cout << "HIT" << endl;
+						}
+					}
+					//std::cout << hitTime << endl;
+					//std::cout << intersectionDist << " < " << a_dist << "? "  << std::boolalpha << (intersectionDist < a_dist)<< endl;
+				}
+			}
+		}
+		int i = 0;
 		for(auto& object : objects){
+			int j = 0;
 			for(auto line : lines){
 				fvec2 direction = line.getDirection();
 				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
@@ -143,8 +148,6 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 								once = false;
 							}
 							circleCircle = false;
-							circle1 = object;
-							line1 = line;
 							lineID = j;
 							circleID = i;
 							earliestHitTime = hitTime;
@@ -188,26 +191,26 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		if(earliestHitTime < 100000){ // there is a collision this frame
 			hasCollided = true;
 			//cout << earliestHitTime << endl;
-			//if(circleCircle){
-				////auto& u = circle1;
-				////auto& v = circle2;
-				//travelAll(earliestHitTime);
-				//timeLeft -= earliestHitTime;
-				//fvec2 perpendicular = circle1.getPos() - circle2.getPos();
-				//fvec2 u_perp = op::getParalel(circle1.getVel(), perpendicular);
-				//fvec2 u_paralel = circle1.getVel() - u_perp;
-				//fvec2 v_perp = op::getParalel(circle2.getVel(), perpendicular);
-				//fvec2 v_paralel = circle2.getVel() - v_perp;
-				//fvec2 u_new_vel = u_paralel + v_perp;
-				//fvec2 v_new_vel = v_paralel + u_perp;
+			if(circleCircle){
+				auto& u = objects[circleID];
+				auto& v = objects[circle2ID];
+				travelAll(earliestHitTime);
+				timeLeft -= earliestHitTime;
+				fvec2 perpendicular = u.getPos() - v.getPos();
+				fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
+				fvec2 u_paralel = u.getVel() - u_perp;
+				fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
+				fvec2 v_paralel = v.getVel() - v_perp;
+				fvec2 u_new_vel = u_paralel + v_perp;
+				fvec2 v_new_vel = v_paralel + u_perp;
 
-				//circle1.setVel(u_new_vel);
-				//circle2.setVel(v_new_vel);
-				//cout << u_new_vel << endl;
-				//cout << v_new_vel << endl;
-				//cout << "circle hit" <<endl;
-			//}
-			//else{
+				u.setVel(u_new_vel);
+				v.setVel(v_new_vel);
+				cout << u_new_vel << endl;
+				cout << v_new_vel << endl;
+				cout << "circle hit" <<endl;
+			}
+			else{
 				auto& object = objects[circleID];
 				auto& line = lines[lineID];
 				cout << "id's: " << circleID << " " << lineID << endl;
@@ -227,7 +230,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				fvec2 newVel = vel_paralel - vel_perpendicular;
 				object.setVel(newVel);
 				cout << "line hit" << endl;
-			//}
+			}
 		}
 		count++;
 	}
@@ -237,7 +240,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		e_k += 0.5 * pow(arma::norm(object.getVel()), 2);
 	}
 	
-	cout << "object count: " << objects.size() << endl;
+	//cout << "object count: " << objects.size() << endl;
 	//cout << "traveling time left" << endl;
 	if(!end)
 	{

@@ -1,9 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include "Physics.h"
+#include "constants.h"
 #include <iostream>
 
 int main(){
-	int caseN = 4;
+	int caseN = 6;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -13,7 +14,7 @@ int main(){
 			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
 		case 1:
-			physics.addObject(arma::fvec2{200, 50}, arma::fvec2{-50, -100});
+			physics.addObject(arma::fvec2{200, 50}, 100* arma::fvec2{-50, -100});
 			//physics.addObject(arma::fvec2{200, 50}, arma::fvec2{-50, 10});
 			//physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
@@ -50,7 +51,8 @@ int main(){
 			break;
 		case 7: // four simultaneous collisions
 			{
-				arma::fvec2 middle_pos{200, 200};
+				arma::fvec2 bounds = op::toArma(window.getSize());
+				arma::fvec2 middle_pos = bounds/2;
 				physics.addObject(arma::fvec2{middle_pos[0]-100, middle_pos[1]}, arma::fvec2{100, 0});
 				physics.addObject(arma::fvec2{middle_pos[0]+100, middle_pos[1]}, arma::fvec2{-100, 0});
 				physics.addObject(arma::fvec2{middle_pos[0], middle_pos[1]-100}, arma::fvec2{0, 100});
@@ -80,6 +82,7 @@ int main(){
 		window.clear();
 		physics.draw(deltaTime);
 		window.display();
+		//std::cout << op::toArma(sf::Mouse::getPosition(window)) << std::endl;
 		//std::cout << 1/deltaTime << std::endl;	
 	}
 }
