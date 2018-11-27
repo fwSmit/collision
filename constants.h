@@ -2,6 +2,7 @@
 #include <armadillo>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
+//#include "Line.h"
 
 namespace constants{
 	const float scale = 2; // pixels / meter
@@ -16,4 +17,5 @@ namespace op{ // open for all classes
 	void drawPoint(arma::fvec2 p, sf::RenderWindow& window);
 	void drawPoint(arma::fvec2 p, sf::Color color, sf::RenderWindow& window);
 	arma::fvec2 getParalel(arma::fvec2 start, arma::fvec2 paralelTo);
+	//arma::fvec2 getIntersection(Line a, Line b);
 }

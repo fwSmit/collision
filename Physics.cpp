@@ -35,8 +35,19 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 	Circle& circle1 = objects[0];
 	Circle& circle2 = objects[1];
 	Line line1 = lines[3];
+	int circleID = -1;
+	int lineID = -1;
 	bool circleCircle;
-	while(hasCollided){
+	int count = 0;
+	static bool lastFrame = false; 
+	//end = true;
+	bool thisFrame = sf::Mouse::isButtonPressed(sf::Mouse::Left); 
+	if(lastFrame == true && thisFrame == false){
+		end = false;
+		cout << "next frame" << endl;
+	}
+	lastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Left); 
+	while(hasCollided && !end){
 		float earliestHitTime = 100000000000;
 		hasCollided = false;
 		//if(objects.size() > 1){
@@ -100,6 +111,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				//}
 			//}
 		//}
+		int i = 0, j = 0;
 		for(auto& object : objects){
 			for(auto line : lines){
 				fvec2 direction = line.getDirection();
@@ -115,7 +127,15 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				//cout << hitTime << endl;
 				//cout << "speed perp" << speed_perpendicular << endl;
 				//cout << "dist " << distance << endl; 
-				if(distance != 0){
+				//fvec2 intersectionPoint = object.getPos() + object.getVel() * hitTime;
+				fvec2 intersectDir = project_p - p;
+				float dir = arma::dot(arma::normalise(intersectDir), arma::normalise(object.getVel()));
+				//if(j == 0){
+					////op::drawPoint (intersectionPoint, sf::Color::Blue, window);
+					//op::drawPoint(project_p, window);
+					//cout << "direction: " << dir << endl;
+				//}
+				if(dir > 0){
 					if(hitTime < timeLeft){
 						if(hitTime < earliestHitTime){
 							if(once){
@@ -125,7 +145,11 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 							circleCircle = false;
 							circle1 = object;
 							line1 = line;
+							lineID = j;
+							circleID = i;
 							earliestHitTime = hitTime;
+							//cout << "dist: " << distance << endl;
+							//end = true;
 						}
 						//travelNormally = false;
 						////std::cout << "Hit" << std::endl;
@@ -135,20 +159,22 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 						//object.travel(deltaTime-hitTime);
 					}
 				}
-				else{
-					cout << "zero distance" << endl;
-				}
 				if(once){
 					//object.setVel(vel_perpendicular);
 					//cout << "direction: " << direction << endl;
 					//object.setVel(100* direction);
+					if(end){
+						cout << "end" << endl;
+						cout << objects[0].getPos()<< endl;
 					once = false;
+					}
 				}
-
+				j++;
 			}
 			//if(travelNormally && !end){
 				//object.travel(deltaTime);
 			//}
+			i++;
 		}
 		//if(lines.size() > 0){
 		//Line line = lines[0];
@@ -162,28 +188,30 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		if(earliestHitTime < 100000){ // there is a collision this frame
 			hasCollided = true;
 			//cout << earliestHitTime << endl;
-			if(circleCircle){
-				//auto& u = circle1;
-				//auto& v = circle2;
-				travelAll(earliestHitTime);
-				timeLeft -= earliestHitTime;
-				fvec2 perpendicular = circle1.getPos() - circle2.getPos();
-				fvec2 u_perp = op::getParalel(circle1.getVel(), perpendicular);
-				fvec2 u_paralel = circle1.getVel() - u_perp;
-				fvec2 v_perp = op::getParalel(circle2.getVel(), perpendicular);
-				fvec2 v_paralel = circle2.getVel() - v_perp;
-				fvec2 u_new_vel = u_paralel + v_perp;
-				fvec2 v_new_vel = v_paralel + u_perp;
+			//if(circleCircle){
+				////auto& u = circle1;
+				////auto& v = circle2;
+				//travelAll(earliestHitTime);
+				//timeLeft -= earliestHitTime;
+				//fvec2 perpendicular = circle1.getPos() - circle2.getPos();
+				//fvec2 u_perp = op::getParalel(circle1.getVel(), perpendicular);
+				//fvec2 u_paralel = circle1.getVel() - u_perp;
+				//fvec2 v_perp = op::getParalel(circle2.getVel(), perpendicular);
+				//fvec2 v_paralel = circle2.getVel() - v_perp;
+				//fvec2 u_new_vel = u_paralel + v_perp;
+				//fvec2 v_new_vel = v_paralel + u_perp;
 
-				circle1.setVel(u_new_vel);
-				circle2.setVel(v_new_vel);
-				cout << u_new_vel << endl;
-				cout << v_new_vel << endl;
-				cout << "ricle col" <<endl;
-			}
-			else{
-				auto& object = circle1;
-				auto& line = line1;
+				//circle1.setVel(u_new_vel);
+				//circle2.setVel(v_new_vel);
+				//cout << u_new_vel << endl;
+				//cout << v_new_vel << endl;
+				//cout << "circle hit" <<endl;
+			//}
+			//else{
+				auto& object = objects[circleID];
+				auto& line = lines[lineID];
+				cout << "id's: " << circleID << " " << lineID << endl;
+				//cout << "hitTime " << earliestHitTime << endl;
 				fvec2 direction = line.getDirection();
 				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
 				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
@@ -198,8 +226,10 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				timeLeft -= earliestHitTime;
 				fvec2 newVel = vel_paralel - vel_perpendicular;
 				object.setVel(newVel);
-			}
+				cout << "line hit" << endl;
+			//}
 		}
+		count++;
 	}
 
 	float e_k = 0;
@@ -207,10 +237,26 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		e_k += 0.5 * pow(arma::norm(object.getVel()), 2);
 	}
 	
+	cout << "object count: " << objects.size() << endl;
 	//cout << "traveling time left" << endl;
-	travelAll(timeLeft);
+	if(!end)
+	{
+		//cout << "time left" <<  timeLeft << endl; 
+		travelAll(timeLeft);}
 	//cout << "E_k: " << e_k << endl;
 		//cout << "end of frame" << endl;
+	if(count > 1)
+	{cout << "This frame: " << count << endl;}
+	if(once){
+		//object.setVel(vel_perpendicular);
+		//cout << "direction: " << direction << endl;
+		//object.setVel(100* direction);
+		if(end){
+			cout << "end" << endl;
+			cout << objects[0].getPos()<< endl;
+		once = false;
+		}
+	}
 }
 
 void Physics::draw(float deltaTime){
