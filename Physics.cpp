@@ -33,8 +33,8 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 	bool hasCollided = true;
 	float timeLeft = deltaTime;
 	Circle& circle1 = objects[0];
-	Circle& circle2 = objects[0];
-	Line& line1 = lines[0];
+	Circle& circle2 = objects[1];
+	Line line1 = lines[3];
 	bool circleCircle;
 	while(hasCollided){
 		float earliestHitTime = 100000000000;
@@ -62,13 +62,13 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 					if(isHitting){
 						float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
 						//cout << hitTime << endl;
-						if(hitTime  < deltaTime){
+						if(hitTime  < timeLeft){
 							// not in reference frame anymore
 
 							if(hitTime < earliestHitTime){
 								circleCircle = true;
-								circle1 = u;
-								circle2 = v;
+								circle1 = objects[i];
+								circle2 = objects[j];
 								earliestHitTime = hitTime;
 							}
 							//u.travel(hitTime);
@@ -113,19 +113,24 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				float speed_perpendicular = arma::norm(vel_perpendicular);
 				float hitTime = distance / speed_perpendicular;
 				//cout << hitTime << endl;
-				if(hitTime < deltaTime){
-					if(hitTime < earliestHitTime){
-						circleCircle = false;
-						circle1 = object;
-						line1 = line;
-						earliestHitTime = hitTime;
+				//cout << "speed perp" << speed_perpendicular << endl;
+				//cout << "dist " << distance << endl; 
+				if(distance != 0){
+					if(hitTime < timeLeft){
+						if(hitTime < earliestHitTime){
+							cout << "hit time: " << hitTime << " earliest: " << earliestHitTime << endl;
+							circleCircle = false;
+							circle1 = object;
+							line1 = line;
+							earliestHitTime = hitTime;
+						}
+						//travelNormally = false;
+						////std::cout << "Hit" << std::endl;
+						//object.travel(hitTime);
+						//fvec2 newVel = vel_paralel - vel_perpendicular;
+						//object.setVel(newVel);
+						//object.travel(deltaTime-hitTime);
 					}
-					//travelNormally = false;
-					////std::cout << "Hit" << std::endl;
-					//object.travel(hitTime);
-					//fvec2 newVel = vel_paralel - vel_perpendicular;
-					//object.setVel(newVel);
-					//object.travel(deltaTime-hitTime);
 				}
 				if(once){
 					//object.setVel(vel_perpendicular);
@@ -133,6 +138,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 					//object.setVel(100* direction);
 					once = false;
 				}
+
 			}
 			//if(travelNormally && !end){
 				//object.travel(deltaTime);
@@ -149,21 +155,22 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		//}
 		if(earliestHitTime < 100000){ // there is a collision this frame
 			hasCollided = true;
+			cout << earliestHitTime << endl;
 			if(circleCircle){
-				auto& u = circle1;
-				auto& v = circle2;
+				//auto& u = circle1;
+				//auto& v = circle2;
 				travelAll(earliestHitTime);
 				timeLeft -= earliestHitTime;
-				fvec2 perpendicular = u.getPos() - v.getPos();
-				fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
-				fvec2 u_paralel = u.getVel() - u_perp;
-				fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
-				fvec2 v_paralel = v.getVel() - v_perp;
+				fvec2 perpendicular = circle1.getPos() - circle2.getPos();
+				fvec2 u_perp = op::getParalel(circle1.getVel(), perpendicular);
+				fvec2 u_paralel = circle1.getVel() - u_perp;
+				fvec2 v_perp = op::getParalel(circle2.getVel(), perpendicular);
+				fvec2 v_paralel = circle2.getVel() - v_perp;
 				fvec2 u_new_vel = u_paralel + v_perp;
 				fvec2 v_new_vel = v_paralel + u_perp;
 
-				u.setVel(u_new_vel);
-				v.setVel(v_new_vel);
+				circle1.setVel(u_new_vel);
+				circle2.setVel(v_new_vel);
 				cout << u_new_vel << endl;
 				cout << v_new_vel << endl;
 				cout << "ricle col" <<endl;
@@ -187,16 +194,15 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				object.setVel(newVel);
 			}
 		}
-		else{
-			//cout << "traveling time left" << endl;
-			travelAll(timeLeft);
-		}
 	}
 
 	float e_k = 0;
 	for(auto object : objects){ // calculate total kinetic energy
 		e_k += 0.5 * pow(arma::norm(object.getVel()), 2);
 	}
+	
+	//cout << "traveling time left" << endl;
+	travelAll(timeLeft);
 	//cout << "E_k: " << e_k << endl;
 		//cout << "end of frame" << endl;
 }
