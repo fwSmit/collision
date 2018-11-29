@@ -34,8 +34,16 @@ float Circle::getRadius(){
 	return radius;
 }
 
+void Circle::setRadius(float _radius){
+	radius = _radius;
+}
+
 float Circle::getMass(){
 	return mass;
+}
+
+void Circle::setMass(float _mass){
+	mass = _mass;
 }
 
 void Circle::travel(float time){

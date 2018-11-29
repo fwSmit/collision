@@ -25,6 +25,18 @@ void Physics::addObject(fvec2 pos, fvec2 vel){
 	objects.push_back(object);
 }
 
+void Physics::addObject(fvec2 pos, fvec2 vel, float radius){
+	Circle object;
+	object.setPos(pos);
+	object.setVel(vel);
+	object.setRadius(radius);
+	objects.push_back(object);
+}
+
+void Physics::addObject(Circle object){
+	objects.push_back(object);
+}
+
 void Physics::addLine(fvec2 begin, fvec2 end){
 	lines.push_back(Line(begin, end));
 }
@@ -201,8 +213,13 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				fvec2 u_paralel = u.getVel() - u_perp;
 				fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
 				fvec2 v_paralel = v.getVel() - v_perp;
-				fvec2 u_new_vel = u_paralel + v_perp;
-				fvec2 v_new_vel = v_paralel + u_perp;
+
+				// these only work when the masses are the same
+				//fvec2 u_new_vel = u_paralel + v_perp;
+				//fvec2 v_new_vel = v_paralel + u_perp;
+				
+				fvec2 u_new_vel = (u_perp*(u.getMass() - v.getMass()) + 2*v.getMass()*v_perp)/(u.getMass() + v.getMass()) + u_paralel;
+				fvec2 v_new_vel = (v_perp*(v.getMass() - u.getMass()) + 2*u.getMass()*u_perp)/(u.getMass() + v.getMass()) + v_paralel;
 
 				u.setVel(u_new_vel);
 				v.setVel(v_new_vel);
@@ -237,7 +254,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 
 	float e_k = 0;
 	for(auto object : objects){ // calculate total kinetic energy
-		e_k += 0.5 * pow(arma::norm(object.getVel()), 2);
+		e_k += 0.5 * object.getMass() * pow(arma::norm(object.getVel()), 2);
 	}
 	
 	//cout << "object count: " << objects.size() << endl;

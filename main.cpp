@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 6;
+	int caseN = 9;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -15,8 +15,6 @@ int main(){
 			break;
 		case 1:
 			physics.addObject(arma::fvec2{200, 50}, 100* arma::fvec2{-50, -100});
-			//physics.addObject(arma::fvec2{200, 50}, arma::fvec2{-50, 10});
-			//physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
 		case 2:// direct hit
 			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});
@@ -25,13 +23,7 @@ int main(){
 		case 3:// test bounds
 			physics.addObject(arma::fvec2{100, 300}, arma::fvec2{-50, 100});
 		case 4: // test lines
-			//physics.addLine(arma::fvec2{100, 300}, arma::fvec2{300, 200});
-			//physics.addLine(arma::fvec2{0, 400}, arma::fvec2{900, 100});
-			//physics.addLine(arma::fvec2{200, 300}, arma::fvec2{900, 300});
-			//physics.addObject(arma::fvec2{250, 50}, arma::fvec2{-50, 150});
-			physics.addObject(arma::fvec2{150, 200}, arma::fvec2{50, 300});
 			physics.addObject(arma::fvec2{300, 200}, 0.1*arma::fvec2{400, -500});
-			//physics.addObject(arma::fvec2{400, 600}, 40*arma::fvec2{-400, -500});
 			break;
 		case 5: // two moving objects
 			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});
@@ -63,11 +55,34 @@ int main(){
 		case 8: // simultaneous bound collision
 			physics.addObject(arma::fvec2{100, 100}, arma::fvec2{-100, -100});
 			break;
-
+		case 9: // different radius
+			{
+				Circle c1, c2;
+				c1.setRadius(60);
+				c1.setPos(arma::fvec2{100, 200});
+				c1.setMass(10);
+				c2.setPos(arma::fvec2{300, 100});
+				c1.setVel(arma::fvec2{100, 20});
+				c2.setVel(arma::fvec2{-10, 100});
+				physics.addObject(c1);
+				physics.addObject(c2);
+			}
+			break;
+		case 10: // many small circles
+			{
+				Circle c;
+				c.setRadius(10);
+				for(int i = 0; i < 5; i ++){
+					for(int j = 0; j < 5; j++){
+						c.setPos(arma::fvec2{30 + i *30.f, 30+ j*30.f});
+						c.setVel(arma::fvec2{arma::randu<float>()*50, arma::randu<float>() * 50});
+						physics.addObject(c);
+					}
+				}
+			}
+			break;
 
 	}
-	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{400, 1000});
-	//physics.addLine(arma::fvec2{60, 30}, arma::fvec2{600, 100});
 	sf::Clock timer;
 	float deltaTime;
 	while(window.isOpen()){
@@ -82,7 +97,5 @@ int main(){
 		window.clear();
 		physics.draw(deltaTime);
 		window.display();
-		//std::cout << op::toArma(sf::Mouse::getPosition(window)) << std::endl;
-		//std::cout << 1/deltaTime << std::endl;	
 	}
 }

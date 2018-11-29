@@ -8,7 +8,9 @@ public:
 	//class sf::CircleShape getSfObject();
 	Circle();
 	float getRadius();
+	void setRadius(float _radius);
 	float getMass();
+	void setMass(float mass);
 	arma::fvec2 getPos();
 	void setPos(arma::fvec2 _pos);
 	arma::fvec2 getVel();
