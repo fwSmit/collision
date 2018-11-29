@@ -14,7 +14,7 @@ Physics::Physics(sf::RenderWindow& _window) : window(_window){
 	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
 	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
 	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
-	cout << bounds << endl;
+	//cout << bounds << endl;
 	//addLine(fvec2{10, 100}, fvec2{20, 10});
 }
 
@@ -46,7 +46,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 	bool thisFrame = sf::Mouse::isButtonPressed(sf::Mouse::Left); 
 	if(lastFrame == true && thisFrame == false){
 		end = false;
-		cout << "next frame" << endl;
+		//cout << "next frame" << endl;
 	}
 	lastFrame = sf::Mouse::isButtonPressed(sf::Mouse::Left); 
 	while(hasCollided && !end){
@@ -167,7 +167,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 					//cout << "direction: " << direction << endl;
 					//object.setVel(100* direction);
 					if(end){
-						cout << "end" << endl;
+						//cout << "end" << endl;
 						cout << objects[0].getPos()<< endl;
 					once = false;
 					}
@@ -206,14 +206,14 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 
 				u.setVel(u_new_vel);
 				v.setVel(v_new_vel);
-				cout << u_new_vel << endl;
-				cout << v_new_vel << endl;
-				cout << "circle hit" <<endl;
+				//cout << u_new_vel << endl;
+				//cout << v_new_vel << endl;
+				//cout << "circle hit" <<endl;
 			}
 			else{
 				auto& object = objects[circleID];
 				auto& line = lines[lineID];
-				cout << "id's: " << circleID << " " << lineID << endl;
+				//cout << "id's: " << circleID << " " << lineID << endl;
 				//cout << "hitTime " << earliestHitTime << endl;
 				fvec2 direction = line.getDirection();
 				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
@@ -229,7 +229,7 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 				timeLeft -= earliestHitTime;
 				fvec2 newVel = vel_paralel - vel_perpendicular;
 				object.setVel(newVel);
-				cout << "line hit" << endl;
+				//cout << "line hit" << endl;
 			}
 		}
 		count++;
@@ -248,8 +248,8 @@ void Physics::update(float deltaTime){ // known bug: 2 bound hits in one frame c
 		travelAll(timeLeft);}
 	//cout << "E_k: " << e_k << endl;
 		//cout << "end of frame" << endl;
-	if(count > 1)
-	{cout << "This frame: " << count << endl;}
+	//if(count > 1)
+	//{cout << "This frame: " << count << endl;}
 	if(once){
 		//object.setVel(vel_perpendicular);
 		//cout << "direction: " << direction << endl;
