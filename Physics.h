@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 
 class Physics{
-	bool end = false;
 	void update(float deltaTime);
 	std::vector<Circle> objects;
 	std::vector<sf::CircleShape> circles;
