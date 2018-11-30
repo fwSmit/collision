@@ -48,7 +48,7 @@ void Physics::update(float deltaTime){
 	int lineID = -1;
 	bool circleCircle;
 	int count = 0;
-	while(hasCollided && !end){
+	while(hasCollided){
 		float earliestHitTime = 100000000000;
 		hasCollided = false;
 		if(objects.size() > 1){
