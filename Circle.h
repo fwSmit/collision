@@ -16,4 +16,5 @@ public:
 	arma::fvec2 getVel();
 	void setVel(arma::fvec2 _vel);
 	void travel(float time); // moves the object by time * velocity
+	void applyForce(arma::fvec2 force, float time);
 };

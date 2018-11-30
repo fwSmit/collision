@@ -50,3 +50,7 @@ void Circle::travel(float time){
 	pos += vel * time;
 }
 
+void Circle::applyForce(arma::fvec2 force, float time){
+	fvec2 acceleration = force / getMass();
+	setVel(getVel() + acceleration * time);
+}

@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 9;
+	int caseN = 1;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
@@ -13,8 +13,8 @@ int main(){
 			physics.addObject(arma::fvec2{100, 100}, arma::fvec2{20, 10});
 			physics.addObject(arma::fvec2{160, 150}, arma::fvec2{0, 0});
 			break;
-		case 1:
-			physics.addObject(arma::fvec2{200, 50}, 100* arma::fvec2{-50, -100});
+		case 1: // single circle
+			physics.addObject(arma::fvec2{200, 50}, arma::fvec2{-50, -100});
 			break;
 		case 2:// direct hit
 			physics.addObject(arma::fvec2{200, 300}, arma::fvec2{-5, -100});

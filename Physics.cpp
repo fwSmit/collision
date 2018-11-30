@@ -164,7 +164,28 @@ void Physics::update(float deltaTime){
 	travelAll(timeLeft);
 }
 
+void Physics::mouseDrag(float deltaTime){
+	static arma::fvec2 startPos, currPos;
+	static bool hasStarted = false;
+	if(hasStarted){
+		if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+			hasStarted = false;
+		}
+		else{
+			currPos = op::toArma( sf::Mouse::getPosition(window) );
+			fvec2 deltaPos = currPos - startPos;
+			cout << "deltaPos: " << ( currPos - startPos ) << endl;
+			objects[0].applyForce(deltaPos, deltaTime);
+		}
+	}
+	if(hasStarted == false && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		hasStarted = true;
+		startPos = op::toArma( sf::Mouse::getPosition(window) );
+	}
+}
+
 void Physics::draw(float deltaTime){
+	mouseDrag(deltaTime);
 	update(deltaTime);
 	for(int i = 0; i < objects.size(); i++){
 		sf::CircleShape circle;
