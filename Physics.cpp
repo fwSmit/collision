@@ -165,27 +165,45 @@ void Physics::update(float deltaTime){
 }
 
 void Physics::mouseDrag(float deltaTime){
-	static arma::fvec2 startPos, currPos;
+	static arma::fvec2 currPos;
+	static int circleID;
 	static bool hasStarted = false;
+	static bool missed = false;
 	if(hasStarted){
 		if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 			hasStarted = false;
 		}
 		else{
 			currPos = op::toArma( sf::Mouse::getPosition(window) );
-			fvec2 deltaPos = currPos - startPos;
-			cout << "deltaPos: " << ( currPos - startPos ) << endl;
-			objects[0].applyForce(deltaPos, deltaTime);
+			fvec2 deltaPos = currPos - objects[circleID].getPos();
+			cout << "deltaPos: " << deltaPos << endl;
+			objects[circleID].applyForce(deltaPos, deltaTime);
 		}
 	}
-	if(hasStarted == false && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-		hasStarted = true;
-		startPos = op::toArma( sf::Mouse::getPosition(window) );
+	if(missed && !sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+			missed = false;
+	}
+
+
+	if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(window) );
+		for(int i = 0; i < objects.size(); i++){
+			if(arma::norm(mousePos - objects[i].getPos()) <= objects[i].getRadius()){
+				circleID = i;
+				hasStarted = true;
+				break;
+			}
+		}
+		missed = true;
+	}
+	if(hasStarted)
+	{
+		lines_array.append(op::toSf(objects[circleID].getPos()));
+		lines_array.append(op::toSf(currPos));
 	}
 }
 
 void Physics::draw(float deltaTime){
-	mouseDrag(deltaTime);
 	update(deltaTime);
 	for(int i = 0; i < objects.size(); i++){
 		sf::CircleShape circle;
@@ -200,6 +218,7 @@ void Physics::draw(float deltaTime){
 		lines_array.append(op::toSf(lines[i].getStart()));
 		lines_array.append(op::toSf(lines[i].getEnd()));
 	}
+	mouseDrag(deltaTime);
 	window.draw(lines_array);
 }
 

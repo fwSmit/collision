@@ -52,4 +52,9 @@ namespace op{
 		//arma::fvec2 perpendicular_i = start - paralel_i;
 		return paralel;
 	}
+	
+	//float distance(arma::fvec2 a, arma::fvec2 b){
+		//arma::fvec2 deltaPos = a - b;
+	//}
 }
+

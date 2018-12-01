@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main(){
-	int caseN = 1;
+	int caseN = 9;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	//window.setFramerateLimit(2);
 	Physics physics(window);
