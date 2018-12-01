@@ -184,6 +184,11 @@ void Physics::mouseDrag(float deltaTime){
 			missed = false;
 	}
 
+	if(hasStarted)
+	{
+		lines_array.append(op::toSf(objects[circleID].getPos()));
+		lines_array.append(op::toSf(currPos));
+	}
 
 	if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(window) );
@@ -195,11 +200,6 @@ void Physics::mouseDrag(float deltaTime){
 			}
 		}
 		missed = true;
-	}
-	if(hasStarted)
-	{
-		lines_array.append(op::toSf(objects[circleID].getPos()));
-		lines_array.append(op::toSf(currPos));
 	}
 }
 
