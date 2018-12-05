@@ -1,13 +1,67 @@
 #include <SFML/Graphics.hpp>
+#include "TGUI/TGUI.hpp"
 #include "Physics.h"
 #include "constants.h"
 #include <iostream>
 
+void initObjects(Physics& physics, sf::Window& window, int caseN);
+	
 int main(){
 	int caseN = 9;
+	bool isPaused = false;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
+	tgui::Gui gui{window};
 	//window.setFramerateLimit(2);
 	Physics physics(window);
+	initObjects(physics, window, caseN);
+
+	tgui::Button::Ptr button = tgui::Button::create();
+	button->setPosition(10, 50);
+	button->setSize(150, 50);
+	button->setText("Add");
+	gui.add(button);
+	
+	tgui::Button::Ptr button2 = tgui::Button::create();
+	button2->setPosition(10, 110);
+	button2->setSize(150, 50);
+	button2->setText("Pause");
+	button2->connect("pressed", [&](tgui::Widget::Ptr widget, const std::string& signalName)
+			{
+				auto but = widget->cast<tgui::Button>();
+				isPaused = !isPaused; 
+				if(isPaused)
+				{
+					but->setText("Resume");
+				}
+				else{
+					but->setText("Pause");
+				}
+			});
+	gui.add(button2);
+	sf::Clock timer;
+	float deltaTime;
+	while(window.isOpen()){
+		deltaTime = timer.restart().asSeconds();
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+			gui.handleEvent(event);
+		}
+
+		window.clear();
+		if(!isPaused)
+		{
+			physics.update(deltaTime);
+		}
+		physics.draw(deltaTime);
+		gui.draw();
+		window.display();
+	}
+}
+
+void initObjects(Physics& physics, sf::Window& window, int caseN){
 	switch(caseN){
 		case 0:// direct hit
 			physics.addObject(arma::fvec2{100, 100}, arma::fvec2{20, 10});
@@ -82,20 +136,5 @@ int main(){
 			}
 			break;
 
-	}
-	sf::Clock timer;
-	float deltaTime;
-	while(window.isOpen()){
-		deltaTime = timer.restart().asSeconds();
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-
-		window.clear();
-		physics.draw(deltaTime);
-		window.display();
 	}
 }

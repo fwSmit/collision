@@ -5,7 +5,6 @@
 #include <SFML/Graphics.hpp>
 
 class Physics{
-	void update(float deltaTime);
 	std::vector<Circle> objects;
 	std::vector<sf::CircleShape> circles;
 	sf::VertexArray lines_array;
@@ -22,4 +21,5 @@ public:
 	void addObject(Circle object);
 	void addLine(arma::fvec2 start, arma::fvec2 end);
 	void draw(float deltaTime);
+	void update(float deltaTime);
 };

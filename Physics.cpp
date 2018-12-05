@@ -204,7 +204,6 @@ void Physics::mouseDrag(float deltaTime){
 }
 
 void Physics::draw(float deltaTime){
-	update(deltaTime);
 	for(int i = 0; i < objects.size(); i++){
 		sf::CircleShape circle;
 		circle.setPosition(op::toSf(objects[i].getPos()));

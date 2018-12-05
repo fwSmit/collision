@@ -5,7 +5,7 @@ set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
 project (collision_p)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 
 add_executable(collision main.cpp Circle.cpp Physics.cpp constants.cpp)
 
