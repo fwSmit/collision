@@ -17,6 +17,7 @@ namespace op{ // open for all classes
 	void drawPoint(arma::fvec2 p, sf::RenderWindow& window);
 	void drawPoint(arma::fvec2 p, sf::Color color, sf::RenderWindow& window);
 	arma::fvec2 getParalel(arma::fvec2 start, arma::fvec2 paralelTo);
+	sf::Vector2f getMousePos(sf::RenderWindow& window);
 	//float distance(arma::fvec2 a, arma::fvec2 b);
 	//arma::fvec2 getIntersection(Line a, Line b);
 }

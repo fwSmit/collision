@@ -9,6 +9,7 @@ void initObjects(Physics& physics, sf::Window& window, int caseN);
 int main(){
 	int caseN = 9;
 	bool isPaused = false, placingCircle = false, leftMouseReleased = false, firstFrame = false;
+	sf::Vector2f circlePos;
 	float circleRadius = 30;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	tgui::Gui gui{window};
@@ -19,6 +20,7 @@ int main(){
 	tgui::Slider::Ptr slider = tgui::Slider::create(10, 100);
 	slider->setPosition(sf::Vector2f(30, 210));
 	slider->setSize(150, 20);
+	slider->setValue(30);
 	gui.add(slider);
 
 	tgui::Button::Ptr button = tgui::Button::create();
@@ -82,17 +84,24 @@ int main(){
 		if(placingCircle){
 			circleRadius = slider->getValue();
 			sf::CircleShape circle;
-			circle.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
+			circle.setPosition(circlePos);
 			circle.setRadius(op::toSf( circleRadius) );
 			circle.setOrigin(circle.getRadius(), circle.getRadius());
 			circle.setFillColor(sf::Color(0, 0, 255, 120));
 			window.draw(circle);
-			if(leftMouseReleased && !firstFrame && !slider->mouseOnWidget(sf::Vector2f( sf::Mouse::getPosition(window) ))){
+			if(leftMouseReleased && !firstFrame && !slider->mouseOnWidget(op::getMousePos(window))){
+				std::cout << "mouse released when placing circle on pos " << op::toArma(circlePos) << std::endl;
 				Circle ci;
 				ci.setRadius(circleRadius);
-				ci.setPos(op::toArma(sf::Vector2f(sf::Mouse::getPosition(window))));
+				ci.setPos(op::toArma( circlePos ) );
 				ci.setVel(arma::fvec2{100, 100});
 				physics.addObject(ci);
+			}
+			else{
+				if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+					std::cout << "changing pos to " << op::toArma(circlePos) << std::endl;
+					circlePos = op::getMousePos(window);
+				}
 			}
 		}
 		gui.draw();

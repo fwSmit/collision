@@ -53,6 +53,10 @@ namespace op{
 		return paralel;
 	}
 	
+	sf::Vector2f getMousePos(sf::RenderWindow& window){
+		return sf::Vector2f(sf::Mouse::getPosition(window));
+	}
+	
 	//float distance(arma::fvec2 a, arma::fvec2 b){
 		//arma::fvec2 deltaPos = a - b;
 	//}
