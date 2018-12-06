@@ -16,6 +16,11 @@ int main(){
 	Physics physics(window);
 	initObjects(physics, window, caseN);
 
+	tgui::Slider::Ptr slider = tgui::Slider::create(10, 100);
+	slider->setPosition(sf::Vector2f(30, 210));
+	slider->setSize(150, 20);
+	gui.add(slider);
+
 	tgui::Button::Ptr button = tgui::Button::create();
 	button->setPosition(10, 50);
 	button->setSize(150, 50);
@@ -75,13 +80,14 @@ int main(){
 		}
 		physics.draw(deltaTime);
 		if(placingCircle){
+			circleRadius = slider->getValue();
 			sf::CircleShape circle;
 			circle.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
 			circle.setRadius(op::toSf( circleRadius) );
 			circle.setOrigin(circle.getRadius(), circle.getRadius());
 			circle.setFillColor(sf::Color(0, 0, 255, 120));
 			window.draw(circle);
-			if(leftMouseReleased && !firstFrame){
+			if(leftMouseReleased && !firstFrame && !slider->mouseOnWidget(sf::Vector2f( sf::Mouse::getPosition(window) ))){
 				Circle ci;
 				ci.setRadius(circleRadius);
 				ci.setPos(op::toArma(sf::Vector2f(sf::Mouse::getPosition(window))));
