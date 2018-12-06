@@ -8,7 +8,8 @@ void initObjects(Physics& physics, sf::Window& window, int caseN);
 	
 int main(){
 	int caseN = 9;
-	bool isPaused = false;
+	bool isPaused = false, placingCircle = false, leftMouseReleased = false, firstFrame = false;
+	float circleRadius = 30;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
 	tgui::Gui gui{window};
 	//window.setFramerateLimit(2);
@@ -19,6 +20,18 @@ int main(){
 	button->setPosition(10, 50);
 	button->setSize(150, 50);
 	button->setText("Add");
+	button->connect("MouseReleased", [&](tgui::Widget::Ptr widget, const std::string& signalName){
+				auto but = widget->cast<tgui::Button>();
+				placingCircle = !placingCircle; 
+				if(placingCircle)
+				{
+					but->setText("Cancel");
+				}
+				else{
+					but->setText("Add");
+				}
+				firstFrame = true;
+			});
 	gui.add(button);
 	
 	tgui::Button::Ptr button2 = tgui::Button::create();
@@ -47,6 +60,11 @@ int main(){
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::MouseButtonReleased){
+				if(event.mouseButton.button == sf::Mouse::Button::Left){
+					leftMouseReleased = true;
+				}
+			}
 			gui.handleEvent(event);
 		}
 
@@ -56,8 +74,25 @@ int main(){
 			physics.update(deltaTime);
 		}
 		physics.draw(deltaTime);
+		if(placingCircle){
+			sf::CircleShape circle;
+			circle.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)));
+			circle.setRadius(op::toSf( circleRadius) );
+			circle.setOrigin(circle.getRadius(), circle.getRadius());
+			circle.setFillColor(sf::Color(0, 0, 255, 120));
+			window.draw(circle);
+			if(leftMouseReleased && !firstFrame){
+				Circle ci;
+				ci.setRadius(circleRadius);
+				ci.setPos(op::toArma(sf::Vector2f(sf::Mouse::getPosition(window))));
+				ci.setVel(arma::fvec2{100, 100});
+				physics.addObject(ci);
+			}
+		}
 		gui.draw();
 		window.display();
+		leftMouseReleased = false;
+		firstFrame = false;
 	}
 }
 
@@ -114,7 +149,6 @@ void initObjects(Physics& physics, sf::Window& window, int caseN){
 				Circle c1, c2;
 				c1.setRadius(60);
 				c1.setPos(arma::fvec2{100, 200});
-				c1.setMass(10);
 				c2.setPos(arma::fvec2{300, 100});
 				c1.setVel(arma::fvec2{100, 20});
 				c2.setVel(arma::fvec2{-10, 100});
