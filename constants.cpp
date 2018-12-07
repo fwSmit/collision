@@ -60,5 +60,43 @@ namespace op{
 	//float distance(arma::fvec2 a, arma::fvec2 b){
 		//arma::fvec2 deltaPos = a - b;
 	//}
+	
+	void drawArrow(sf::Vector2f a, sf::Vector2f b, sf::RenderWindow& window){
+
+		sf::VertexArray line;
+		line.setPrimitiveType(sf::PrimitiveType::Lines);
+		line.append(a);
+		line.append(b);
+		window.draw(line);
+	}
+	
+	bool isMouseInWindow(sf::RenderWindow& window){
+		auto mousePos = sf::Mouse::getPosition(window);
+		auto windowSize = window.getSize();
+		bool inWindow = true;
+		if(mousePos.x < 0 || mousePos.y < 0 || mousePos.x > windowSize.x || mousePos.y > windowSize.y){
+			inWindow = false;
+		}
+		return inWindow;
+	}
+	bool isMouseOnAnyWidget(tgui::Gui& gui, sf::RenderWindow& window)
+	{
+		auto allWidgets = gui.getWidgets();
+		bool mouseOnWidget = false;
+		for(auto widget : allWidgets){
+			if(widget->mouseOnWidget(op::getMousePos(window))){
+				mouseOnWidget = true;
+				break;
+			}
+			if(widget->getWidgetType() == "Slider"){
+				auto slider = widget->cast<tgui::Slider>();
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && slider->isFocused()){
+					mouseOnWidget = true;
+					break;
+				}
+			}
+		}
+		return mouseOnWidget;
+	}
 }
 

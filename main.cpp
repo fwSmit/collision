@@ -8,7 +8,7 @@ void initObjects(Physics& physics, sf::Window& window, int caseN);
 	
 int main(){
 	int caseN = 9;
-	bool isPaused = false, placingCircle = false, leftMouseReleased = false, firstFrame = false;
+	bool isPaused = false, placingCircle = false, leftMouseReleased = false, firstFrame = false, startedPressing = false;
 	sf::Vector2f circlePos;
 	float circleRadius = 30;
 	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
@@ -60,6 +60,7 @@ int main(){
 	gui.add(button2);
 	sf::Clock timer;
 	float deltaTime;
+	bool lastMouseState = false, currState = false;
 	while(window.isOpen()){
 		deltaTime = timer.restart().asSeconds();
 		sf::Event event;
@@ -81,6 +82,8 @@ int main(){
 			physics.update(deltaTime);
 		}
 		physics.draw(deltaTime);
+
+		std::cout << op::isMouseOnAnyWidget(gui, window) << std::endl;
 		if(placingCircle){
 			circleRadius = slider->getValue();
 			sf::CircleShape circle;
@@ -89,18 +92,25 @@ int main(){
 			circle.setOrigin(circle.getRadius(), circle.getRadius());
 			circle.setFillColor(sf::Color(0, 0, 255, 120));
 			window.draw(circle);
-			if(leftMouseReleased && !firstFrame && !slider->mouseOnWidget(op::getMousePos(window))){
-				std::cout << "mouse released when placing circle on pos " << op::toArma(circlePos) << std::endl;
+			currState = sf::Mouse::isButtonPressed(sf::Mouse::Left);
+			if(lastMouseState == false && currState == true && op::isMouseInWindow(window) && !op::isMouseOnAnyWidget(gui, window)){
+				startedPressing = true;
+			}
+			if(leftMouseReleased && !op::isMouseOnAnyWidget(gui, window)){
+				//std::cout << "mouse released when placing circle on pos " << op::toArma(circlePos) << std::endl;
 				Circle ci;
 				ci.setRadius(circleRadius);
 				ci.setPos(op::toArma( circlePos ) );
-				ci.setVel(arma::fvec2{100, 100});
+				ci.setVel(op::toArma(op::getMousePos(window)) - op::toArma( circlePos ) );
 				physics.addObject(ci);
+				startedPressing = false;
 			}
 			else{
-				if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-					std::cout << "changing pos to " << op::toArma(circlePos) << std::endl;
+				if(!startedPressing){
 					circlePos = op::getMousePos(window);
+				}
+				else{
+					op::drawArrow(circlePos, op::getMousePos(window), window);
 				}
 			}
 		}
@@ -108,6 +118,7 @@ int main(){
 		window.display();
 		leftMouseReleased = false;
 		firstFrame = false;
+		lastMouseState = currState;
 	}
 }
 
