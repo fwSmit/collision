@@ -83,7 +83,7 @@ int main(){
 		}
 		physics.draw(deltaTime);
 
-		std::cout << op::isMouseOnAnyWidget(gui, window) << std::endl;
+		//std::cout << op::isMouseOnAnyWidget(gui, window) << std::endl;
 		if(placingCircle){
 			circleRadius = slider->getValue();
 			sf::CircleShape circle;

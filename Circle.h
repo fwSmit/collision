@@ -1,3 +1,4 @@
+#pragma once
 #include <armadillo>
 #include <SFML/System/Vector2.hpp>
 

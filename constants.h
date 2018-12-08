@@ -3,7 +3,9 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-//#include "Line.h"
+
+
+class Circle;
 
 namespace constants{
 	const float scale = 2.f; // pixels / meter
@@ -22,6 +24,7 @@ namespace op{ // open for all classes
 	sf::Vector2f getMousePos(sf::RenderWindow& window);
 	bool isMouseInWindow(sf::RenderWindow& window);
 	bool isMouseOnAnyWidget(tgui::Gui& gui, sf::RenderWindow& window);
+	bool isCircleInBounds(Circle c);
 	//float distance(arma::fvec2 a, arma::fvec2 b);
 	//arma::fvec2 getIntersection(Line a, Line b);
 }

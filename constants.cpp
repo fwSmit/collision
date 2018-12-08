@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "Circle.h"
 
 namespace op{
 	using namespace constants;
@@ -97,6 +98,10 @@ namespace op{
 			}
 		}
 		return mouseOnWidget;
+	}
+	
+	bool isCircleInBounds(Circle c){
+		return true;
 	}
 }
 
