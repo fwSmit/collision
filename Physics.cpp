@@ -261,9 +261,9 @@ void Physics::clear(){
 }
 
 void Physics::removeCircle(int index){
-	objects.erase(index);
+	objects.erase(objects.begin() + index);
 }
 
 void Physics::removeLine(int index){
-	lines.erase(index);
+	lines.erase(lines.begin() + index);
 }
