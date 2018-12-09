@@ -15,6 +15,7 @@ class Physics{
 	void travelAll(float time);
 	void mouseDrag(float deltaTime); // lets the user move circle with the mouse
 public:
+	Circle& getObject(int index);
 	Physics(sf::RenderWindow& window);
 	void addObject(arma::fvec2 pos, arma::fvec2 vel);
 	void addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);

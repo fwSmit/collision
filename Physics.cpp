@@ -246,3 +246,7 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 	//float k = (-a/b)*j + c/b; 
 	//return arma::fvec2{j,k};
 }
+
+Circle& Physics::getObject(int index){
+	return objects[index];
+}
