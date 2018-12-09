@@ -6,10 +6,9 @@ using namespace arma;
 using namespace std;
 
 Circle::Circle(){
-	mass = 1;
-	radius = 30;
-	pos = fvec2{0,0};
-	vel = fvec2{10,10};
+	setRadius(30);
+	setPos(fvec2{100, 100});
+	setVel( fvec2{10,10} );
 }
 
 arma::fvec2 Circle::getPos(){
@@ -36,6 +35,7 @@ float Circle::getRadius(){
 
 void Circle::setRadius(float _radius){
 	radius = _radius;
+	setMass(4/3 * arma::datum::pi * pow( _radius, 3));
 }
 
 float Circle::getMass(){

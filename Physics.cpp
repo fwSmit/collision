@@ -176,7 +176,7 @@ void Physics::mouseDrag(float deltaTime){
 		else{
 			currPos = op::toArma( sf::Mouse::getPosition(window) );
 			fvec2 deltaPos = currPos - objects[circleID].getPos();
-			cout << "deltaPos: " << deltaPos << endl;
+			deltaPos *= objects[circleID].getMass();
 			objects[circleID].applyForce(deltaPos, deltaTime);
 		}
 	}
