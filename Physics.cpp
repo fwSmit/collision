@@ -250,3 +250,20 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 Circle& Physics::getObject(int index){
 	return objects[index];
 }
+
+Line& Physics::getLine(int index){
+	return lines[index];
+}
+
+void Physics::clear(){
+	objects.clear();
+	lines.clear();
+}
+
+void Physics::removeCircle(int index){
+	objects.erase(index);
+}
+
+void Physics::removeLine(int index){
+	lines.erase(index);
+}
