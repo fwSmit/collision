@@ -1,20 +1,28 @@
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
+set (CMAKE_CXX_STANDARD 14)
 
 project (collision_p)
 
-set (CMAKE_CXX_STANDARD 14)
+option(IS_LIBRARY "Should collision be compiled as library?")
 
-add_executable(collision main.cpp Circle.cpp Physics.cpp constants.cpp)
+set (collision_src Circle.cpp Physics.cpp constants.cpp)
+
+if(IS_LIBRARY)
+	message("setting up as library")
+	add_library(collision SHARED ${collision_src})
+else()
+	message("setting up as executable")
+	add_executable(collision main.cpp ${collision_src})
+endif()
 
 #armadillo library
 find_package(Armadillo REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 #include the necessary libraries
-find_package(SFML 2 REQUIRED system window graphics network audio)
+find_package(SFML 2 REQUIRED system window graphics)
 find_package(TGUI REQUIRED)
 
 if(NOT SFML_FOUND)
@@ -28,3 +36,4 @@ endif()
 include_directories(${SFML_INCLUDE_DIR})
 
 target_link_libraries(collision ${SFML_LIBRARIES} ${TGUI_LIBRARY} ${ARMADILLO_LIBRARIES})
+
