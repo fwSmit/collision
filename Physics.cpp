@@ -217,7 +217,7 @@ void Physics::draw(float deltaTime){
 		lines_array.append(op::toSf(lines[i].getStart()));
 		lines_array.append(op::toSf(lines[i].getEnd()));
 	}
-	mouseDrag(deltaTime);
+	// mouseDrag(deltaTime);
 	window.draw(lines_array);
 }
 
