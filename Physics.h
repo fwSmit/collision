@@ -28,4 +28,6 @@ public:
 	void addLine(arma::fvec2 start, arma::fvec2 end);
 	void draw(float deltaTime);
 	void update(float deltaTime);
+	std::size_t getNumObjects();
+	std::size_t getNumLines();
 };

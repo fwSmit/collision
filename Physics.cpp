@@ -267,3 +267,11 @@ void Physics::removeCircle(int index){
 void Physics::removeLine(int index){
 	lines.erase(lines.begin() + index);
 }
+
+std::size_t Physics::getNumObjects(){
+	return objects.size();
+}
+
+std::size_t Physics::getNumLines(){
+	return lines.size();
+}
