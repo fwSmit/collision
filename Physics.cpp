@@ -279,3 +279,7 @@ void Physics::reset(){
 	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
 	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
 }
+
+void Physics::setObjectColor(std::size_t id, sf::Color color){
+	circles[id].setFillColor(color);
+}

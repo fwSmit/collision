@@ -31,4 +31,5 @@ public:
 	std::size_t getNumObjects();
 	std::size_t getNumLines();
 	void reset();
+	void setObjectColor(std::size_t id, sf::Color color);
 };
