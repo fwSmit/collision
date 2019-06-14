@@ -24,10 +24,11 @@ public:
 	Physics(sf::RenderWindow& window);
 	void addObject(arma::fvec2 pos, arma::fvec2 vel);
 	void addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);
-	void addObject(Circle object);
+	void addObject(Circle object, sf::Color fillColor = sf::Color::Blue);
 	void addLine(arma::fvec2 start, arma::fvec2 end);
 	void draw(float deltaTime);
 	void update(float deltaTime);
 	std::size_t getNumObjects();
 	std::size_t getNumLines();
+	void reset();
 };

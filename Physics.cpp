@@ -6,21 +6,13 @@
 using namespace arma;
 
 Physics::Physics(sf::RenderWindow& _window) : window(_window){
-	bounds = op::toArma(window.getSize());
 	lines_array.setPrimitiveType(sf::PrimitiveType::Lines);
-
-	// add the bounds
-	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
-	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
-	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
-	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
+	reset();
 }
 
+
 void Physics::addObject(fvec2 pos, fvec2 vel){
-	Circle object;
-	object.setPos(pos);
-	object.setVel(vel);
-	objects.push_back(object);
+	addObject(pos, vel, 30);
 }
 
 void Physics::addObject(fvec2 pos, fvec2 vel, float radius){
@@ -28,11 +20,14 @@ void Physics::addObject(fvec2 pos, fvec2 vel, float radius){
 	object.setPos(pos);
 	object.setVel(vel);
 	object.setRadius(radius);
-	objects.push_back(object);
+	addObject(object);
 }
 
-void Physics::addObject(Circle object){
+void Physics::addObject(Circle object, sf::Color fillColor){
 	objects.push_back(object);
+	sf::CircleShape circle;
+	circle.setFillColor(fillColor);
+	circles.push_back(circle);
 }
 
 void Physics::addLine(fvec2 begin, fvec2 end){
@@ -204,13 +199,11 @@ void Physics::mouseDrag(float deltaTime){
 }
 
 void Physics::draw(float deltaTime){
-	for(int i = 0; i < objects.size(); i++){
-		sf::CircleShape circle;
-		circle.setPosition(op::toSf(objects[i].getPos()));
-		circle.setRadius(op::toSf(objects[i].getRadius()));
-		circle.setOrigin(circle.getRadius(), circle.getRadius());
-		circle.setFillColor(sf::Color(0, 0, 255, 120));
-		window.draw(circle);
+	for(int i = 0; i < circles.size(); i++){
+		circles[i].setPosition(op::toSf(getObject(i).getPos()));
+		circles[i].setRadius(op::toSf(getObject(i).getRadius()));
+		circles[i].setOrigin(circles[i].getRadius(), circles[i].getRadius());
+		window.draw(circles[i]);
 	}
 	lines_array.clear();
 	for(int i = 4; i < lines.size(); i++){
@@ -258,6 +251,7 @@ Line& Physics::getLine(int index){
 void Physics::clear(){
 	objects.clear();
 	lines.clear();
+	circles.clear();
 }
 
 void Physics::removeCircle(int index){
@@ -274,4 +268,14 @@ std::size_t Physics::getNumObjects(){
 
 std::size_t Physics::getNumLines(){
 	return lines.size();
+}
+
+void Physics::reset(){
+	clear();
+	// add the bounds
+	bounds = op::toArma(window.getSize());
+	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
+	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
+	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
+	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
 }
