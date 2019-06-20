@@ -1,4 +1,4 @@
-#include "Physics.h"
+#pragma once
 
 class Circle{
 public:

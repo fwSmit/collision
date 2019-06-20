@@ -5,7 +5,7 @@
 
 using namespace arma;
 
-Physics::Physics(sf::RenderWindow& _window) : window(_window){
+Physics::Physics(){
 	lines_array.setPrimitiveType(sf::PrimitiveType::Lines);
 	reset();
 }
@@ -66,9 +66,9 @@ void Physics::update(float deltaTime){
 					fvec2 intersectionPoint = project_v - b*u_vel_unit;
 					float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
 					float a_dist = arma::norm(u.getPos() - project_v);
-					//op::drawPoint(intersectionPoint, window);
-					//op::drawPoint(u.getPos(), window);
-					//op::drawPoint(project_v, window);
+					//op::drawPoint(intersectionPoint, getWindow());
+					//op::drawPoint(u.getPos(), getWindow());
+					//op::drawPoint(project_v, getWindow());
 					bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
 					if(isHitting){
 						float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
@@ -172,7 +172,7 @@ void Physics::mouseDrag(float deltaTime){
 			hasStarted = false;
 		}
 		else{
-			currPos = op::toArma( sf::Mouse::getPosition(window) );
+			currPos = op::toArma( sf::Mouse::getPosition(getWindow()) );
 			fvec2 deltaPos = currPos - objects[circleID].getPos();
 			deltaPos *= objects[circleID].getMass();
 			objects[circleID].applyForce(deltaPos, deltaTime);
@@ -189,7 +189,7 @@ void Physics::mouseDrag(float deltaTime){
 	}
 
 	if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(window) );
+		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(getWindow()) );
 		for(std::size_t i = 0; i < objects.size(); i++){
 			if(arma::norm(mousePos - objects[i].getPos()) <= objects[i].getRadius()){
 				circleID = i;
@@ -206,7 +206,7 @@ void Physics::draw(float deltaTime){
 		circles[i].setPosition(op::toSf(getObject(i).getPos()));
 		circles[i].setRadius(op::toSf(getObject(i).getRadius()));
 		circles[i].setOrigin(circles[i].getRadius(), circles[i].getRadius());
-		window.draw(circles[i]);
+		getWindow().draw(circles[i]);
 	}
 	lines_array.clear();
 	for(std::size_t i = 4; i < lines.size(); i++){
@@ -214,7 +214,7 @@ void Physics::draw(float deltaTime){
 		lines_array.append(op::toSf(lines[i].getEnd()));
 	}
 	// mouseDrag(deltaTime);
-	window.draw(lines_array);
+	getWindow().draw(lines_array);
 }
 
 void Physics::travelAll(float time){
@@ -276,7 +276,7 @@ std::size_t Physics::getNumLines(){
 void Physics::reset(){
 	clear();
 	// add the bounds
-	bounds = op::toArma(window.getSize());
+	bounds = op::toArma(getWindow().getSize());
 	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
 	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
 	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
@@ -285,4 +285,8 @@ void Physics::reset(){
 
 void Physics::setObjectColor(std::size_t id, sf::Color color){
 	circles[id].setFillColor(color);
+}
+
+sf::RenderWindow& Physics::getWindow(){
+	return op::getWindow();
 }
