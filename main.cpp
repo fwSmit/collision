@@ -11,7 +11,7 @@ int main(){
 	bool isPaused = false, placingCircle = false, leftMouseReleased = false, firstFrame = false, startedPressing = false;
 	sf::Vector2f circlePos;
 	float circleRadius = 30;
-	sf::RenderWindow window(sf::VideoMode(1000, 800), "Collision");
+	sf::RenderWindow window(sf::VideoMode(1000, 800), "SFML Collision");
 	tgui::Gui gui{window};
 	//window.setFramerateLimit(2);
 	Physics physics(window);
