@@ -35,6 +35,9 @@ void Physics::addLine(fvec2 begin, fvec2 end){
 }
 
 void Physics::update(float deltaTime){
+	if(deltaTime > 1.f/50.f){
+		deltaTime = 1.f/60.f;
+	}
 	static bool once = true;
 	bool hasCollided = true;
 	float timeLeft = deltaTime;
@@ -47,8 +50,8 @@ void Physics::update(float deltaTime){
 		float earliestHitTime = 100000000000;
 		hasCollided = false;
 		if(objects.size() > 1){
-			for(int i = 0; i < objects.size() - 1; i++){
-				for(int j = i+1; j < objects.size(); j++){
+			for(std::size_t i = 0; i < objects.size() - 1; i++){
+				for(std::size_t j = i+1; j < objects.size(); j++){
 					Circle_internal& u = objects[i];
 					Circle_internal&	v = objects[j]; // v is static in reference frame
 					fvec2 u_vel = u.getVel() - v.getVel();
@@ -138,9 +141,9 @@ void Physics::update(float deltaTime){
 				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
 				fvec2 p = object.getPos();
 				fvec2 project_p = closestPointOnLine(line, p);
-				float distance = arma::norm(p-project_p) - object.getRadius();
-				float speed_perpendicular = arma::norm(vel_perpendicular);
-				float hitTime = distance / speed_perpendicular;
+				// float distance = arma::norm(p-project_p) - object.getRadius();
+				// float speed_perpendicular = arma::norm(vel_perpendicular);
+				// float hitTime = distance / speed_perpendicular;
 				travelAll(earliestHitTime);
 				timeLeft -= earliestHitTime;
 				fvec2 newVel = vel_paralel - vel_perpendicular;
@@ -187,7 +190,7 @@ void Physics::mouseDrag(float deltaTime){
 
 	if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
 		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(window) );
-		for(int i = 0; i < objects.size(); i++){
+		for(std::size_t i = 0; i < objects.size(); i++){
 			if(arma::norm(mousePos - objects[i].getPos()) <= objects[i].getRadius()){
 				circleID = i;
 				hasStarted = true;
@@ -199,14 +202,14 @@ void Physics::mouseDrag(float deltaTime){
 }
 
 void Physics::draw(float deltaTime){
-	for(int i = 0; i < circles.size(); i++){
+	for(std::size_t i = 0; i < circles.size(); i++){
 		circles[i].setPosition(op::toSf(getObject(i).getPos()));
 		circles[i].setRadius(op::toSf(getObject(i).getRadius()));
 		circles[i].setOrigin(circles[i].getRadius(), circles[i].getRadius());
 		window.draw(circles[i]);
 	}
 	lines_array.clear();
-	for(int i = 4; i < lines.size(); i++){
+	for(std::size_t i = 4; i < lines.size(); i++){
 		lines_array.append(op::toSf(lines[i].getStart()));
 		lines_array.append(op::toSf(lines[i].getEnd()));
 	}

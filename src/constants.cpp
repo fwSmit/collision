@@ -1,5 +1,5 @@
 #include "constants.h"
-#include "Circle.h"
+#include "Circle_internal.h"
 
 namespace op{
 	using namespace constants;
@@ -100,7 +100,7 @@ namespace op{
 		return mouseOnWidget;
 	}
 	
-	bool isCircleInBounds(Circle c){
+	bool isCircleInBounds(Circle_internal c){
 		return true;
 	}
 }
