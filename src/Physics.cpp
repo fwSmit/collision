@@ -16,14 +16,14 @@ void Physics::addObject(fvec2 pos, fvec2 vel){
 }
 
 void Physics::addObject(fvec2 pos, fvec2 vel, float radius){
-	Circle object;
+	Circle_internal object;
 	object.setPos(pos);
 	object.setVel(vel);
 	object.setRadius(radius);
 	addObject(object);
 }
 
-void Physics::addObject(Circle object, sf::Color fillColor){
+void Physics::addObject(Circle_internal object, sf::Color fillColor){
 	objects.push_back(object);
 	sf::CircleShape circle;
 	circle.setFillColor(fillColor);
@@ -49,8 +49,8 @@ void Physics::update(float deltaTime){
 		if(objects.size() > 1){
 			for(int i = 0; i < objects.size() - 1; i++){
 				for(int j = i+1; j < objects.size(); j++){
-					Circle& u = objects[i];
-					Circle&	v = objects[j]; // v is static in reference frame
+					Circle_internal& u = objects[i];
+					Circle_internal&	v = objects[j]; // v is static in reference frame
 					fvec2 u_vel = u.getVel() - v.getVel();
 					Line u_movement(u.getPos(), u.getPos() + u_vel);
 					fvec2 project_v = closestPointOnLine(u_movement, v.getPos());
@@ -240,7 +240,7 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 	//return arma::fvec2{j,k};
 }
 
-Circle& Physics::getObject(int index){
+Circle_internal& Physics::getObject(int index){
 	return objects[index];
 }
 

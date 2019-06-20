@@ -2,12 +2,12 @@
 #include <armadillo>
 #include <SFML/System/Vector2.hpp>
 
-class Circle{
+class Circle_internal{
 	float mass, radius;
 	arma::fvec2 pos, vel;
 public:
 	//class sf::CircleShape getSfObject();
-	Circle();
+	Circle_internal();
 	float getRadius();
 	void setRadius(float _radius);
 	float getMass();
