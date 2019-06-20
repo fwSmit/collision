@@ -9,7 +9,6 @@ class Circle;
 
 namespace constants{
 	const float scale = 2.f; // pixels / meter
-	Physics physics;
 }
 namespace op{ // open for all classes
 	sf::Vector2f toSf(arma::fvec2 vec);
