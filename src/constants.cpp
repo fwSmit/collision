@@ -5,11 +5,33 @@
 namespace op{
 	using namespace constants;
 
-	window_struct::~window_struct(){
-		delete window;
-		delete physics;
-	}
-	
+	template<typename T>
+		T * Singleton<T>::m_instance = 0;
+
+	template<>
+		sf::RenderWindow* Singleton<sf::RenderWindow>::GetInstance()
+		{
+			if (!m_instance)
+				Singleton<sf::RenderWindow>::m_instance = new sf::RenderWindow(sf::VideoMode(constants::windowSize.x, constants::windowSize.y), "SFML collision");
+
+			return m_instance;
+		}
+	template<typename T>
+		T* Singleton<T>::GetInstance()
+		{
+			if (!m_instance)
+				Singleton<T>::m_instance = new T();
+
+			return m_instance;
+		}
+
+	template<typename T>
+		void Singleton<T>::destroy()
+		{
+			delete Singleton<T>::m_instance;
+			Singleton<T>::m_instance = 0;
+		}
+
 	sf::Vector2f toSf(arma::fvec2 vec) { 
 		sf::Vector2f result;
 		result.x = toSf(vec[0]);
@@ -44,7 +66,7 @@ namespace op{
 		circle.setFillColor(sf::Color::Red);
 		getWindow().draw(circle);
 	}
-	
+
 	void drawPoint(arma::fvec2 p, sf::Color color){
 		sf::CircleShape circle;
 		circle.setPosition(op::toSf(p));
@@ -56,19 +78,19 @@ namespace op{
 
 	arma::fvec2 getParalel(arma::fvec2 start, arma::fvec2 paralelTo){
 		arma::fvec2 paralel = paralelTo * (arma::dot(paralelTo, start) / (pow(arma::norm(paralelTo), 2)));
-		
+
 		//arma::fvec2 perpendicular_i = start - paralel_i;
 		return paralel;
 	}
-	
+
 	sf::Vector2f getMousePos(){
 		return sf::Vector2f(sf::Mouse::getPosition(getWindow()));
 	}
-	
+
 	//float distance(arma::fvec2 a, arma::fvec2 b){
-		//arma::fvec2 deltaPos = a - b;
+	//arma::fvec2 deltaPos = a - b;
 	//}
-	
+
 	void drawArrow(sf::Vector2f a, sf::Vector2f b){
 
 		sf::VertexArray line;
@@ -77,12 +99,12 @@ namespace op{
 		line.append(b);
 		getWindow().draw(line);
 	}
-	
+
 	bool isMouseInWindow(){
 		auto mousePos = sf::Mouse::getPosition(getWindow());
 		auto windowSize = getWindow().getSize();
 		bool inWindow = true;
-		if(mousePos.x < 0 || mousePos.y < 0 || mousePos.x > windowSize.x || mousePos.y > windowSize.y){
+		if(mousePos.x < 0 || mousePos.y < 0 || mousePos.x > int(windowSize.x) || mousePos.y > int(windowSize.y)){
 			inWindow = false;
 		}
 		return inWindow;
@@ -106,31 +128,31 @@ namespace op{
 		}
 		return mouseOnWidget;
 	}
-	
+
 	bool isCircleInBounds(Circle_internal c){
 		return true;
 	}
-	
-	void createWindow(sf::VideoMode mode, const sf::String &title, sf::Uint32 style, const sf::ContextSettings &settings){
-		if(internal.window != nullptr)
-		{
-			internal.window = new sf::RenderWindow(mode, title, style, settings);
-		}
-	}
+
+	// void createWindow(sf::VideoMode mode, const sf::String &title, sf::Uint32 style, const sf::ContextSettings &settings){
+		// if(internal.window != nullptr)
+		// {
+			// internal.window = new sf::RenderWindow(mode, title, style, settings);
+		// }
+	// }
 
 	sf::RenderWindow& getWindow(){
-		return *internal.window;
+		return *Singleton<sf::RenderWindow>::GetInstance();
 	}
 
-	void createPhysics(){
-		if(internal.physics != nullptr)
-		{
-			internal.physics = new Physics();	
-		}
-	}
+	// void createPhysics(){
+		// if(internal.physics != nullptr)
+		// {
+			// internal.physics = new Physics();
+		// }
+	// }
 
 	Physics& getPhysics(){
-		return *internal.physics;	
+		return *Singleton<Physics>::GetInstance();
 	}
 }
 

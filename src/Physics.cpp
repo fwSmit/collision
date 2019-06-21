@@ -6,10 +6,9 @@
 using namespace arma;
 
 Physics::Physics(){
-	lines_array.setPrimitiveType(sf::PrimitiveType::Lines);
-	reset();
+	bounds = op::toArma(getWindow().getSize());
+	createWalls();
 }
-
 
 void Physics::addObject(fvec2 pos, fvec2 vel){
 	addObject(pos, vel, 30);
@@ -35,6 +34,7 @@ void Physics::addLine(fvec2 begin, fvec2 end){
 }
 
 void Physics::update(float deltaTime){
+	// this prevents crashing when there are many objects colliding in one frame. Instead of crashing the simulation will run a bit slower
 	if(deltaTime > 1.f/50.f){
 		deltaTime = 1.f/60.f;
 	}
@@ -87,12 +87,16 @@ void Physics::update(float deltaTime){
 		int i = 0;
 		for(auto& object : objects){
 			int j = 0;
-			for(auto line : lines){
-				fvec2 direction = line.getDirection();
+			auto it = lines.begin();
+			if(!hasWalls){
+				it+= n_walls;
+			}
+			for(; it != lines.end(); it++){
+				fvec2 direction = (*it).getDirection();
 				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
 				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
 				fvec2 p = object.getPos();
-				fvec2 project_p = closestPointOnLine(line, p);
+				fvec2 project_p = closestPointOnLine(*it, p);
 				float distance = arma::norm(p-project_p) - object.getRadius();
 				float speed_perpendicular = arma::norm(vel_perpendicular);
 				float hitTime = distance / speed_perpendicular;
@@ -201,7 +205,7 @@ void Physics::mouseDrag(float deltaTime){
 	}
 }
 
-void Physics::draw(float deltaTime){
+void Physics::draw(){
 	for(std::size_t i = 0; i < circles.size(); i++){
 		circles[i].setPosition(op::toSf(getObject(i).getPos()));
 		circles[i].setRadius(op::toSf(getObject(i).getRadius()));
@@ -275,12 +279,7 @@ std::size_t Physics::getNumLines(){
 
 void Physics::reset(){
 	clear();
-	// add the bounds
-	bounds = op::toArma(getWindow().getSize());
-	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
-	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
-	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
-	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
+	createWalls();
 }
 
 void Physics::setObjectColor(std::size_t id, sf::Color color){
@@ -288,5 +287,16 @@ void Physics::setObjectColor(std::size_t id, sf::Color color){
 }
 
 sf::RenderWindow& Physics::getWindow(){
-	return op::getWindow();
+	return *op::Singleton<sf::RenderWindow>::GetInstance();
+}
+
+void Physics::setWalls(bool _hasWalls){
+	hasWalls = _hasWalls;
+}
+
+void Physics::createWalls(){
+	addLine(fvec2{0, 0}, fvec2{bounds[0], 0});
+	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
+	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
+	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
 }

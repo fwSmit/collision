@@ -1,13 +1,19 @@
-#include "Circle.h"
+#include <iostream>
+#include <SFML/Graphics.hpp>
 #include "constants.h"
 #include "Physics.h"
+// #include "Circle.h"
 
 int main(){
-	op::createWindow(sf::VideoMode(1000, 800), "SFML Collision");
-	op::createPhysics();
-	Circle circle;
+	// std::cout << "hello world" << std::endl;
+	// op::createWindow(sf::VideoMode(1000, 800), "SFML Collision");
+	// op::createPhysics();
+	// Circle circle;
 	sf::Clock timer;
 	float deltaTime;
+	op::getPhysics().addObject({200, 200}, {10, 400}, 30);
+	op::getPhysics().addObject({300, 200}, {100, 40}, 30);
+	op::getPhysics().setWalls(true);
 	while(op::getWindow().isOpen()){
 		deltaTime = timer.restart().asSeconds();
 		sf::Event event;
@@ -19,6 +25,7 @@ int main(){
 
 		op::getWindow().clear();
 		op::getPhysics().update(deltaTime);
+		op::getPhysics().draw();
 		// circle.draw();
 		op::getWindow().display();
 	}
