@@ -31,7 +31,7 @@ public:
 	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel);
 	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);
 	Iter_t addObject(Circle_internal object, sf::Color fillColor = sf::Color::Blue);
-	Iter_t addLine(arma::fvec2 start, arma::fvec2 end);
+	std::list<Line>::iterator addLine(arma::fvec2 start, arma::fvec2 end);
 	void draw();
 	void update(float deltaTime);
 	std::size_t getNumObjects();

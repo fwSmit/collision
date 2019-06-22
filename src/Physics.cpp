@@ -30,7 +30,7 @@ Iter_t Physics::addObject(Circle_internal object, sf::Color fillColor){
 	return objects.end();
 }
 
-void Physics::addLine(fvec2 begin, fvec2 end){
+std::list<Line>::iterator Physics::addLine(fvec2 begin, fvec2 end){
 	lines.push_back(Line(begin, end));
 }
 
@@ -243,10 +243,16 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 }
 
 Circle_internal& Physics::getObject(int index){
+	auto it = objects.begin();
+	std::advance(it, index);
+	return *it;
 	// return objects[index];
 }
 
 Line& Physics::getLine(int index){
+	auto it = lines.begin();
+	std::advance(it, index);
+	return *it;
 	// return lines[index];
 }
 
