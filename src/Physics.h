@@ -3,13 +3,16 @@
 #include "Line.h"
 #include <SFML/Graphics.hpp>
 #include <armadillo>
-#include <vector>
+#include <list>
+
+using Store_t = std::list<Circle_internal>;
+using Iter_t = Store_t::iterator;
 
 class Physics{
-	std::vector<Circle_internal> objects;
+	Store_t objects;
 	std::vector<sf::CircleShape> circles;
 	sf::VertexArray lines_array;
-	std::vector<Line> lines;
+	std::list<Line> lines;
 	arma::fvec2 bounds;
 	arma::fvec2 closestPointOnLine(Line line, arma::fvec2 p); // returns the point on the line that is closest to p
 	bool hasWalls = false;
@@ -25,10 +28,10 @@ public:
 	void removeCircle(int index);
 	void removeLine(int index);
 	Physics();
-	void addObject(arma::fvec2 pos, arma::fvec2 vel);
-	void addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);
-	void addObject(Circle_internal object, sf::Color fillColor = sf::Color::Blue);
-	void addLine(arma::fvec2 start, arma::fvec2 end);
+	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel);
+	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);
+	Iter_t addObject(Circle_internal object, sf::Color fillColor = sf::Color::Blue);
+	Iter_t addLine(arma::fvec2 start, arma::fvec2 end);
 	void draw();
 	void update(float deltaTime);
 	std::size_t getNumObjects();

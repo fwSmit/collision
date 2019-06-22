@@ -10,23 +10,24 @@ Physics::Physics(){
 	createWalls();
 }
 
-void Physics::addObject(fvec2 pos, fvec2 vel){
-	addObject(pos, vel, 30);
+Iter_t Physics::addObject(fvec2 pos, fvec2 vel){
+	return addObject(pos, vel, 30);
 }
 
-void Physics::addObject(fvec2 pos, fvec2 vel, float radius){
+Iter_t Physics::addObject(fvec2 pos, fvec2 vel, float radius){
 	Circle_internal object;
 	object.setPos(pos);
 	object.setVel(vel);
 	object.setRadius(radius);
-	addObject(object);
+	return addObject(object);
 }
 
-void Physics::addObject(Circle_internal object, sf::Color fillColor){
+Iter_t Physics::addObject(Circle_internal object, sf::Color fillColor){
 	objects.push_back(object);
 	sf::CircleShape circle;
 	circle.setFillColor(fillColor);
 	circles.push_back(circle);
+	return objects.end();
 }
 
 void Physics::addLine(fvec2 begin, fvec2 end){
@@ -41,42 +42,42 @@ void Physics::update(float deltaTime){
 	static bool once = true;
 	bool hasCollided = true;
 	float timeLeft = deltaTime;
-	int circleID = -1;
-	int circle2ID = -1;
-	int lineID = -1;
+	Iter_t circleIt1;
+	Iter_t circleIt2;
+	std::list<Line>::iterator lineIt;
 	bool circleCircle;
 	int count = 0;
 	while(hasCollided){
 		float earliestHitTime = 100000000000;
 		hasCollided = false;
 		if(objects.size() > 1){
-			for(std::size_t i = 0; i < objects.size() - 1; i++){
-				for(std::size_t j = i+1; j < objects.size(); j++){
-					Circle_internal& u = objects[i];
-					Circle_internal&	v = objects[j]; // v is static in reference frame
-					fvec2 u_vel = u.getVel() - v.getVel();
-					Line u_movement(u.getPos(), u.getPos() + u_vel);
-					fvec2 project_v = closestPointOnLine(u_movement, v.getPos());
+			for(Iter_t it1 = objects.begin(); it1 != std::prev(objects.end()); it1++){
+				Iter_t it2 = it1;
+				it2++;
+				for(; it2 != objects.end(); it2++){
+					fvec2 u_vel = it1->getVel() - it2->getVel();
+					Line u_movement(it1->getPos(), it1->getPos() + u_vel);
+					fvec2 project_v = closestPointOnLine(u_movement, it2->getPos());
 					
 					// a_sq + b_sq = r_sq
-					float a_sq = arma::accu(arma::pow(v.getPos() - project_v, 2)); 
-					float b_sq = pow(v.getRadius() + u.getRadius(), 2) - a_sq;
+					float a_sq = arma::accu(arma::pow(it2->getPos() - project_v, 2)); 
+					float b_sq = pow(it2->getRadius() + it1->getRadius(), 2) - a_sq;
 					float b = sqrt(b_sq);
 					fvec2 u_vel_unit = arma::normalise(u_vel);
 					fvec2 intersectionPoint = project_v - b*u_vel_unit;
-					float intersectionDist = arma::norm(u.getPos() - intersectionPoint);
-					float a_dist = arma::norm(u.getPos() - project_v);
+					float intersectionDist = arma::norm(it1->getPos() - intersectionPoint);
+					float a_dist = arma::norm(it1->getPos() - project_v);
 					//op::drawPoint(intersectionPoint, getWindow());
-					//op::drawPoint(u.getPos(), getWindow());
+					//op::drawPoint(it1->getPos(), getWindow());
 					//op::drawPoint(project_v, getWindow());
 					bool isHitting = intersectionDist < a_dist; // when false, u is moving away from v
 					if(isHitting){
-						float hitTime = arma::norm(intersectionPoint - u.getPos())/arma::norm(u_vel);
+						float hitTime = arma::norm(intersectionPoint - it1->getPos())/arma::norm(u_vel);
 						if(hitTime  < timeLeft){
 							if(hitTime < earliestHitTime){
 								circleCircle = true;
-								circleID = i;
-								circle2ID = j;
+								circleIt1 = it1;
+								circleIt2 = it2;
 								earliestHitTime = hitTime;
 							}
 						}
@@ -84,24 +85,22 @@ void Physics::update(float deltaTime){
 				}
 			}
 		}
-		int i = 0;
-		for(auto& object : objects){
-			int j = 0;
-			auto it = lines.begin();
+		for(Iter_t itObj = objects.begin(); itObj != objects.end(); itObj++){
+			std::list<Line>::iterator itLine = lines.begin();
 			if(!hasWalls){
-				it+= n_walls;
+				std::advance(itLine, n_walls);
 			}
-			for(; it != lines.end(); it++){
-				fvec2 direction = (*it).getDirection();
-				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
-				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
-				fvec2 p = object.getPos();
-				fvec2 project_p = closestPointOnLine(*it, p);
-				float distance = arma::norm(p-project_p) - object.getRadius();
+			for(; itLine != lines.end(); itLine++){
+				fvec2 direction = (*itLine).getDirection();
+				fvec2 vel_paralel = op::getParalel(itObj->getVel(), direction);
+				fvec2 vel_perpendicular = itObj->getVel() - vel_paralel;
+				fvec2 p = itObj->getPos();
+				fvec2 project_p = closestPointOnLine(*itLine, p);
+				float distance = arma::norm(p-project_p) - itObj->getRadius();
 				float speed_perpendicular = arma::norm(vel_perpendicular);
 				float hitTime = distance / speed_perpendicular;
 				fvec2 intersectDir = project_p - p;
-				float dir = arma::dot(arma::normalise(intersectDir), arma::normalise(object.getVel()));
+				float dir = arma::dot(arma::normalise(intersectDir), arma::normalise(itObj->getVel()));
 				if(dir > 0){
 					if(hitTime < timeLeft){
 						if(hitTime < earliestHitTime){
@@ -109,49 +108,43 @@ void Physics::update(float deltaTime){
 								once = false;
 							}
 							circleCircle = false;
-							lineID = j;
-							circleID = i;
+							lineIt = itLine;
+							circleIt1 = itObj;
 							earliestHitTime = hitTime;
 						}
 					}
 				}
-				j++;
 			}
-			i++;
 		}
 		if(earliestHitTime < 100000){ // there is a collision this frame
 			hasCollided = true;
 			if(circleCircle){
-				auto& u = objects[circleID];
-				auto& v = objects[circle2ID];
 				travelAll(earliestHitTime);
 				timeLeft -= earliestHitTime;
-				fvec2 perpendicular = u.getPos() - v.getPos();
-				fvec2 u_perp = op::getParalel(u.getVel(), perpendicular);
-				fvec2 u_paralel = u.getVel() - u_perp;
-				fvec2 v_perp = op::getParalel(v.getVel(), perpendicular);
-				fvec2 v_paralel = v.getVel() - v_perp;
-				fvec2 u_new_vel = (u_perp*(u.getMass() - v.getMass()) + 2*v.getMass()*v_perp)/(u.getMass() + v.getMass()) + u_paralel;
-				fvec2 v_new_vel = (v_perp*(v.getMass() - u.getMass()) + 2*u.getMass()*u_perp)/(u.getMass() + v.getMass()) + v_paralel;
+				fvec2 perpendicular = circleIt1->getPos() - circleIt2->getPos();
+				fvec2 u_perp = op::getParalel(circleIt1->getVel(), perpendicular);
+				fvec2 u_paralel = circleIt1->getVel() - u_perp;
+				fvec2 v_perp = op::getParalel(circleIt2->getVel(), perpendicular);
+				fvec2 v_paralel = circleIt2->getVel() - v_perp;
+				fvec2 u_new_vel = (u_perp*(circleIt1->getMass() - circleIt2->getMass()) + 2*circleIt2->getMass()*v_perp)/(circleIt1->getMass() + circleIt2->getMass()) + u_paralel;
+				fvec2 v_new_vel = (v_perp*(circleIt2->getMass() - circleIt1->getMass()) + 2*circleIt1->getMass()*u_perp)/(circleIt1->getMass() + circleIt2->getMass()) + v_paralel;
 
-				u.setVel(u_new_vel);
-				v.setVel(v_new_vel);
+				circleIt1->setVel(u_new_vel);
+				circleIt2->setVel(v_new_vel);
 			}
 			else{
-				auto& object = objects[circleID];
-				auto& line = lines[lineID];
-				fvec2 direction = line.getDirection();
-				fvec2 vel_paralel = op::getParalel(object.getVel(), direction);
-				fvec2 vel_perpendicular = object.getVel() - vel_paralel;
-				fvec2 p = object.getPos();
-				fvec2 project_p = closestPointOnLine(line, p);
+				fvec2 direction = lineIt->getDirection();
+				fvec2 vel_paralel = op::getParalel(circleIt1->getVel(), direction);
+				fvec2 vel_perpendicular = circleIt1->getVel() - vel_paralel;
+				fvec2 p = circleIt1->getPos();
+				fvec2 project_p = closestPointOnLine(*lineIt, p);
 				// float distance = arma::norm(p-project_p) - object.getRadius();
 				// float speed_perpendicular = arma::norm(vel_perpendicular);
 				// float hitTime = distance / speed_perpendicular;
 				travelAll(earliestHitTime);
 				timeLeft -= earliestHitTime;
 				fvec2 newVel = vel_paralel - vel_perpendicular;
-				object.setVel(newVel);
+				circleIt1->setVel(newVel);
 			}
 		}
 		count++;
@@ -167,42 +160,42 @@ void Physics::update(float deltaTime){
 }
 
 void Physics::mouseDrag(float deltaTime){
-	static arma::fvec2 currPos;
-	static int circleID;
-	static bool hasStarted = false;
-	static bool missed = false;
-	if(hasStarted){
-		if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-			hasStarted = false;
-		}
-		else{
-			currPos = op::toArma( sf::Mouse::getPosition(getWindow()) );
-			fvec2 deltaPos = currPos - objects[circleID].getPos();
-			deltaPos *= objects[circleID].getMass();
-			objects[circleID].applyForce(deltaPos, deltaTime);
-		}
-	}
-	if(missed && !sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-			missed = false;
-	}
+	// static arma::fvec2 currPos;
+	// static int circleIt1;
+	// static bool hasStarted = false;
+	// static bool missed = false;
+	// if(hasStarted){
+		// if(!sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+			// hasStarted = false;
+		// }
+		// else{
+			// currPos = op::toArma( sf::Mouse::getPosition(getWindow()) );
+			// fvec2 deltaPos = currPos - objects[circleIt1].getPos();
+			// deltaPos *= objects[circleIt1].getMass();
+			// objects[circleIt1].applyForce(deltaPos, deltaTime);
+		// }
+	// }
+	// if(missed && !sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+			// missed = false;
+	// }
 
-	if(hasStarted)
-	{
-		lines_array.append(op::toSf(objects[circleID].getPos()));
-		lines_array.append(op::toSf(currPos));
-	}
+	// if(hasStarted)
+	// {
+		// lines_array.append(op::toSf(objects[circleIt1].getPos()));
+		// lines_array.append(op::toSf(currPos));
+	// }
 
-	if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-		fvec2 mousePos = op::toArma( sf::Mouse::getPosition(getWindow()) );
-		for(std::size_t i = 0; i < objects.size(); i++){
-			if(arma::norm(mousePos - objects[i].getPos()) <= objects[i].getRadius()){
-				circleID = i;
-				hasStarted = true;
-				break;
-			}
-		}
-		missed = true;
-	}
+	// if(!hasStarted && !missed && sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+		// fvec2 mousePos = op::toArma( sf::Mouse::getPosition(getWindow()) );
+		// for(std::size_t i = 0; i < objects.size(); i++){
+			// if(arma::norm(mousePos - objects[i].getPos()) <= objects[i].getRadius()){
+				// circleIt1 = i;
+				// hasStarted = true;
+				// break;
+			// }
+		// }
+		// missed = true;
+	// }
 }
 
 void Physics::draw(){
@@ -213,9 +206,11 @@ void Physics::draw(){
 		getWindow().draw(circles[i]);
 	}
 	lines_array.clear();
+	std::list<Line>::iterator it = lines.begin();
 	for(std::size_t i = 4; i < lines.size(); i++){
-		lines_array.append(op::toSf(lines[i].getStart()));
-		lines_array.append(op::toSf(lines[i].getEnd()));
+		lines_array.append(op::toSf(it->getStart()));
+		lines_array.append(op::toSf(it->getEnd()));
+		it++;
 	}
 	// mouseDrag(deltaTime);
 	getWindow().draw(lines_array);
@@ -248,11 +243,11 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 }
 
 Circle_internal& Physics::getObject(int index){
-	return objects[index];
+	// return objects[index];
 }
 
 Line& Physics::getLine(int index){
-	return lines[index];
+	// return lines[index];
 }
 
 void Physics::clear(){
@@ -262,11 +257,13 @@ void Physics::clear(){
 }
 
 void Physics::removeCircle(int index){
-	objects.erase(objects.begin() + index);
+	auto it = objects.begin();
+	std::advance(it, index);
+	objects.erase(it);
 }
 
 void Physics::removeLine(int index){
-	lines.erase(lines.begin() + index);
+	// lines.erase(lines.begin() + index);
 }
 
 std::size_t Physics::getNumObjects(){

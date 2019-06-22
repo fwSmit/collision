@@ -3,7 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-
+#include "Physics.h"
 
 class Circle_internal;
 class Physics;
