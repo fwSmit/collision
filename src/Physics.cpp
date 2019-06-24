@@ -24,9 +24,7 @@ Iter_t Physics::addObject(fvec2 pos, fvec2 vel, float radius){
 
 Iter_t Physics::addObject(Circle_internal object, sf::Color fillColor){
 	objects.push_back(object);
-	sf::CircleShape circle;
-	circle.setFillColor(fillColor);
-	circles.push_back(circle);
+	object.setFillColor(fillColor);
 	return objects.end();
 }
 
@@ -199,18 +197,18 @@ void Physics::mouseDrag(float deltaTime){
 }
 
 void Physics::draw(){
-	for(std::size_t i = 0; i < circles.size(); i++){
-		circles[i].setPosition(op::toSf(getObject(i).getPos()));
-		circles[i].setRadius(op::toSf(getObject(i).getRadius()));
-		circles[i].setOrigin(circles[i].getRadius(), circles[i].getRadius());
-		getWindow().draw(circles[i]);
+	for(Iter_t it = objects.begin(); it != objects.end(); it++){
+		sf::CircleShape circle;
+		circle.setPosition(op::toSf(it->getPos()));
+		circle.setRadius(op::toSf(it->getRadius()));
+		circle.setFillColor(it->getFillColor());
+		circle.setOrigin(circle.getRadius(), circle.getRadius());
+		getWindow().draw(circle);
 	}
 	lines_array.clear();
-	std::list<Line>::iterator it = lines.begin();
-	for(std::size_t i = 4; i < lines.size(); i++){
+	for(std::list<Line>::iterator it = lines.begin(); it != lines.end(); it++){
 		lines_array.append(op::toSf(it->getStart()));
 		lines_array.append(op::toSf(it->getEnd()));
-		it++;
 	}
 	// mouseDrag(deltaTime);
 	getWindow().draw(lines_array);
@@ -259,7 +257,6 @@ Line& Physics::getLine(int index){
 void Physics::clear(){
 	objects.clear();
 	lines.clear();
-	circles.clear();
 }
 
 void Physics::removeCircle(int index){
@@ -283,10 +280,6 @@ std::size_t Physics::getNumLines(){
 void Physics::reset(){
 	clear();
 	createWalls();
-}
-
-void Physics::setObjectColor(std::size_t id, sf::Color color){
-	circles[id].setFillColor(color);
 }
 
 sf::RenderWindow& Physics::getWindow(){

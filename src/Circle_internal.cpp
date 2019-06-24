@@ -54,3 +54,11 @@ void Circle_internal::applyForce(arma::fvec2 force, float time){
 	fvec2 acceleration = force / getMass();
 	setVel(getVel() + acceleration * time);
 }
+
+void Circle_internal::setFillColor(sf::Color color){
+	fillColor = color;
+}
+
+sf::Color Circle_internal::getFillColor() const{
+	return fillColor;
+}

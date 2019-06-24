@@ -10,7 +10,6 @@ using Iter_t = Store_t::iterator;
 
 class Physics{
 	Store_t objects;
-	std::vector<sf::CircleShape> circles;
 	sf::VertexArray lines_array;
 	std::list<Line> lines;
 	arma::fvec2 bounds;
