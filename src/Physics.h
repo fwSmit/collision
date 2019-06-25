@@ -21,11 +21,9 @@ class Physics{
 	void mouseDrag(float deltaTime); // lets the user move circle with the mouse
 	sf::RenderWindow& getWindow();
 public:
-	Circle_internal& getObject(int index);
-	Line& getLine(int index);
 	void clear();
-	void removeCircle(int index);
-	void removeLine(int index);
+	void removeCircle(const Iter_t it);
+	void removeLine(const std::list<Line>::iterator it);
 	Physics();
 	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel);
 	Iter_t addObject(arma::fvec2 pos, arma::fvec2 vel, float radius);

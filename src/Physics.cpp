@@ -1,11 +1,13 @@
 // credits to http://ericleong.me/research/circle-circle/#static-circle-circle-collision-response
 #include "Physics.h"
 #include <cmath>
+#include <iostream>
 #include "constants.h"
 
 using namespace arma;
 
 Physics::Physics(){
+	std::cout << sizeof(Iter_t) << std::endl;
 	bounds = op::toArma(getWindow().getSize());
 	createWalls();
 }
@@ -30,6 +32,7 @@ Iter_t Physics::addObject(Circle_internal object, sf::Color fillColor){
 
 std::list<Line>::iterator Physics::addLine(fvec2 begin, fvec2 end){
 	lines.push_back(Line(begin, end));
+	return lines.end();
 }
 
 void Physics::update(float deltaTime){
@@ -230,28 +233,6 @@ arma::fvec2 Physics::closestPointOnLine(Line line, arma::fvec2 p){
 	float distance = dotProduct / magnitudeAB; // not an actual distance
 
 	return line.getStart() + AB * distance;
-
-    //float a = line.getA();
-	//float b = line.getB();
-	//float c = line.getC();
-	//float h = b*p[1]-(b*b)/a * p[0];
-	//float j = (c-h)/(pow(b, 2)/a + a);
-	//float k = (-a/b)*j + c/b; 
-	//return arma::fvec2{j,k};
-}
-
-Circle_internal& Physics::getObject(int index){
-	auto it = objects.begin();
-	std::advance(it, index);
-	return *it;
-	// return objects[index];
-}
-
-Line& Physics::getLine(int index){
-	auto it = lines.begin();
-	std::advance(it, index);
-	return *it;
-	// return lines[index];
 }
 
 void Physics::clear(){
@@ -259,14 +240,12 @@ void Physics::clear(){
 	lines.clear();
 }
 
-void Physics::removeCircle(int index){
-	auto it = objects.begin();
-	std::advance(it, index);
+void Physics::removeCircle(const Iter_t it){
 	objects.erase(it);
 }
 
-void Physics::removeLine(int index){
-	// lines.erase(lines.begin() + index);
+void Physics::removeLine(const std::list<Line>::iterator it){
+	lines.erase(it);
 }
 
 std::size_t Physics::getNumObjects(){
