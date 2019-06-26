@@ -10,8 +10,8 @@ int main(){
 	// op::createPhysics();
 	Circle circle;
 	op::getPhysics().setWalls(true);
-	op::getPhysics().addObject({200, 200}, {10, 400}, 30);
-	op::getPhysics().addObject({300, 200}, {100, 40}, 30);
+	// op::getPhysics().addObject({200, 200}, {10, 400}, 30);
+	// op::getPhysics().addObject({300, 200}, {100, 40}, 30);
 	sf::Clock timer;
 	float deltaTime;
 	while(op::getWindow().isOpen()){

@@ -3,11 +3,11 @@
 #include <cmath>
 #include <iostream>
 #include "constants.h"
+#include "Circle.h"
 
 using namespace arma;
 
 Physics::Physics(){
-	std::cout << sizeof(Iter_t) << std::endl;
 	bounds = op::toArma(getWindow().getSize());
 	createWalls();
 }
@@ -274,4 +274,12 @@ void Physics::createWalls(){
 	addLine(fvec2{0, 0}, fvec2{0, bounds[1]});
 	addLine(fvec2{bounds[0], 0}, fvec2{bounds[0], bounds[1]});
 	addLine(fvec2{0, bounds[1]}, fvec2{bounds[0], bounds[1]});
+}
+
+const Store_t& Physics::getObjects() const{
+	return objects;
+}
+
+const std::list<Line>& Physics::getLines() const{
+	return lines;
 }
